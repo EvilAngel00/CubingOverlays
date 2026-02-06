@@ -84,8 +84,8 @@ static void SeedData(CompetitionState state)
 
     state.Competitors.AddRange(competitors);
 
-    state.Round.LeftGroupWcaIds = [.. competitors.Where((c, i) => i % 2 == 0).Select(c => c.WcaId)];
-    state.Round.RightGroupWcaIds = [.. competitors.Where((c, i) => i % 2 != 0).Select(c => c.WcaId)];
+    state.Round.LeftGroupWcaIds = [.. competitors.Where((c, i) => i % 2 != 0).Select(c => c.WcaId)];
+    state.Round.RightGroupWcaIds = [.. competitors.Where((c, i) => i % 2 == 0).Select(c => c.WcaId)];
     state.Round.Event = "3x3";
     state.Round.RoundName = "Final";
 }

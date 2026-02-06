@@ -134,15 +134,21 @@ body {
     position: absolute;
     top: -15px; /* Move it up to overlap the top border */
     left: 10px;
-    background-color: #444; /* Darker grey to differentiate */
+    background-color: #444;
     color: white;
     font-size: 10px;
     font-weight: bold;
     text-transform: uppercase;
+    text-align: center;
     padding: 2px 8px;
     border-radius: 4px;
-    z-index: 2; /* Ensure it stays on top */
+    z-index: 2;
     letter-spacing: 1px;
+}
+
+#right .avg-label {
+    left: auto;
+    right: 10px;
 }
 
 /* The main box for the value */
@@ -164,6 +170,62 @@ body {
     color: white;
 }
 
+.rank-box {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: var(--bg-solid-dim);
+    border: 2px solid var(--border-default);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 14px;
+    color: white;
+    z-index: 1;
+}
+
+/* Positioning for Left Player: Stick to the right of the box */
+#left .rank-box {
+    right: -25px; /* Halfway overlap or full exit depending on preference */
+    top: 10px;
+}
+
+/* Positioning for Right Player: Stick to the left of the box */
+#right .rank-box {
+    left: -25px;
+    top: 10px;
+}
+
+/* Color coding to match the labels */
+#left .main-avg .rank-box {
+    border-color: var(--color-left);
+    color: var(--color-left);
+}
+
+#right .main-avg .rank-box {
+    border-color: var(--color-right);
+    color: var(--color-right);
+}
+
+.bpa .rank-box {
+    border-color: var(--color-bpa);
+    color: var(--color-bpa);
+}
+
+.wpa .rank-box {
+    border-color: var(--color-wpa);
+    color: var(--color-wpa);
+}
+
+/* Make the Rank Box slightly smaller/subdued if it's BPA/WPA */
+.projections-group .rank-box {
+    font-size: 12px;
+    width: 35px;
+    height: 35px;
+}
+
 .stats-area {
     position: relative;
     margin-top: 10px;
@@ -179,7 +241,7 @@ body {
 
 .projections-group {
     display: flex;
-    gap: 20px;
+    gap: 50px;
     transition: opacity 0.3s ease;
 }
 

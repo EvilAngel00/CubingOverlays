@@ -70,7 +70,11 @@ function renderSide(side, competitorId, state) {
 
     const bpaVal = root.querySelector(".bpa .avg-value");
     const wpaVal = root.querySelector(".wpa .avg-value");
-    const mainAvgVal = root.querySelector(".main-avg .avg-value");
+    const avgVal = root.querySelector(".main-avg .avg-value");
+
+    const bpaRankBox = root.querySelector(".bpa .rank-box");
+    const wpaRankBox = root.querySelector(".wpa .rank-box");
+    const avgRankBox = root.querySelector(".main-avg .rank-box");
 
     // Default: Hide everything
     mainAvgBox.classList.remove("visible-stat");
@@ -83,7 +87,8 @@ function renderSide(side, competitorId, state) {
         // Show Final Average
         mainAvgBox.classList.remove("hidden-stat");
         mainAvgBox.classList.add("visible-stat");
-        mainAvgVal.textContent = stats.average === -1 ? "DNF" : stats.average.toFixed(2);
+        avgVal.textContent = stats.average === -1 ? "DNF" : stats.average.toFixed(2);
+        avgRankBox.textContent = getOrdinal(calculateProjectedRank(stats.average, competitorId, state.competitors, true));
     }
     else if (stats.bestPossibleAverage !== null) {
         // Show Projections
@@ -91,7 +96,10 @@ function renderSide(side, competitorId, state) {
         projGroup.classList.add("visible-stat");
 
         bpaVal.textContent = stats.bestPossibleAverage === -1 ? "DNF" : stats.bestPossibleAverage.toFixed(2);
+        bpaRankBox.textContent = getOrdinal(calculateProjectedRank(stats.bestPossibleAverage, competitorId, state.competitors));
+
         wpaVal.textContent = stats.worstPossibleAverage === -1 ? "DNF" : stats.worstPossibleAverage.toFixed(2);
+        wpaRankBox.textContent = getOrdinal(calculateProjectedRank(stats.worstPossibleAverage, competitorId, state.competitors));
     }
 }
 
@@ -99,4 +107,35 @@ function formatSolve(solve) {
     if (!solve) return "—";
     if (solve.penalty === "dnf") return "DNF";
     return solve.time.toFixed(2);
+}
+
+function calculateProjectedRank(targetValue, currentId, allCompetitors) {
+    if (targetValue === null) return null;
+
+    // 1. Get the "best current standing" for everyone else
+    const fieldBestValues = allCompetitors
+        .filter(c => c.wcaId !== currentId) // exclude self
+        .map(c => c.stats.average)
+        .filter(v => v !== null);
+
+    // 2. Rank is 1 + (how many OTHER people are strictly better than you)
+    let betterCount = 0;
+
+    fieldBestValues.forEach(value => {
+        // A value is better if it's not DNF (-1) AND 
+        // (the target is a DNF OR the field value is lower)
+        const isFieldBetter = (value !== -1 && (targetValue === -1 || value < targetValue));
+        if (isFieldBetter) {
+            betterCount++;
+        }
+    });
+
+    return betterCount + 1;
+}
+
+function getOrdinal(n) {
+    if (!n) return "--";
+    const s = ["th", "st", "nd", "rd"],
+        v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
