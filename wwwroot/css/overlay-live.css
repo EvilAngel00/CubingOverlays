@@ -11,11 +11,10 @@
     --color-text: #ecf0f1;
     --color-text-dim: #7f8c8d; /* For empty boxes */
     /* Chroma Key Background */
-    --chroma-key: #ff00ff; /* Magenta */
+    --chroma-key: transparent; /* Magenta */
 }
 
 body {
-    margin: 150px;
     background-color: var(--chroma-key);
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     overflow-y: auto;
@@ -263,7 +262,6 @@ body {
     width: 120px;
 }
 
-
 .avg-container, .projections-group {
     transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
@@ -278,6 +276,21 @@ body {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+}
+
+/* Specific styling for the Needed box (Gold theme) */
+.avg-container.needed .avg-label {
+    background-color: #f1c40f; /* Gold */
+    color: #000; /* Black text for better contrast on gold */
+}
+
+.avg-container.needed .avg-value-box {
+    border-color: #f1c40f;
+}
+
+/* Hide the container if no value is present */
+.avg-container.hidden-stat {
+    display: none;
 }
 
 /* Color Coding */
