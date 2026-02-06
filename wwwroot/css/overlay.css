@@ -1,0 +1,253 @@
+﻿:root {
+    /* Side Colors */
+    --color-left: #2675c3;
+    --color-right: #C0392B;
+    --color-bpa: #27ae60;
+    --color-wpa: #c0392b;
+    --bg-solid-dark: #1a1a1a; /* Looks like 80% black */
+    --bg-solid-dim: #333333; /* Looks like 40% black */
+    --border-default: #444444;
+    /* Text */
+    --color-text: #ecf0f1;
+    --color-text-dim: #7f8c8d; /* For empty boxes */
+    /* Chroma Key Background */
+    --chroma-key: #ff00ff; /* Magenta */
+}
+
+body {
+    margin: 150px;
+    background-color: var(--chroma-key);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overflow-y: auto;
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 100vh;
+    width: 100vw;
+    padding: 60px;
+    box-sizing: border-box;
+    background-color: var(--chroma-key);
+}
+
+.player {
+    /* FIXED WIDTH prevents resizing */
+    width: 1000px;
+    gap: 20px;
+    color: black;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Vertical Stacking for Solve Boxes */
+#times-left, #times-right {
+    display: flex;
+    flex-direction: column; /* Stack them vertically */
+    gap: 20px;
+    margin-top: 15px;
+}
+
+#times-right {
+    align-items: flex-end;
+}
+
+.solve-box {
+    width: 120px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-solid-dark);
+    border: 2px solid var(--border-default);
+    border-radius: 8px;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--color-text);
+}
+
+    .solve-box[data-empty="true"] {
+        color: var(--color-text-dim);
+        background-color: var(--bg-solid-dim);
+        border-color: var(--bg-solid-dim);
+    }
+
+.name-bar {
+    height: 80px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+}
+
+.name {
+    font-size: 42px;
+    font-weight: 900;
+    white-space: nowrap;
+    display: inline-block;
+    width: auto;
+}
+
+#right .name {
+    text-align: right;
+}
+
+#right .name-bar {
+    justify-content: flex-end;
+}
+
+.flag-wrapper {
+    width: 90px; /* Fixed width */
+    height: 55px; /* Fixed height */
+    background-color: transparent;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+    .flag-wrapper img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain; /* Respects aspect ratio within the white box */
+    }
+
+/* The Error Cross */
+.flag-error {
+    background-image: linear-gradient(45deg, transparent 46%, black 47%, black 53%, transparent 54%), linear-gradient(-45deg, transparent 46%, black 47%, black 53%, transparent 54%) !important;
+}
+
+/* Container to hold the two overlapping pieces */
+.avg-container {
+    position: relative;
+    margin-top: 30px; /* Space for the label that sticks out */
+    width: 120px;
+    transition: opacity 0.3s ease;
+}
+
+/* The small tab that sticks out at the top */
+.avg-label {
+    position: absolute;
+    top: -15px; /* Move it up to overlap the top border */
+    left: 10px;
+    background-color: #444; /* Darker grey to differentiate */
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    z-index: 2; /* Ensure it stays on top */
+    letter-spacing: 1px;
+}
+
+/* The main box for the value */
+.avg-value-box {
+    width: 120px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-solid-dark);
+    border: 2px solid var(--border-default);
+    border-radius: 8px;
+}
+
+.avg-value {
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 1.8rem;
+    color: white;
+}
+
+.stats-area {
+    position: relative;
+    margin-top: 10px;
+    height: 90px; /* Ensures space is reserved */
+}
+
+#right .stats-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 4px;
+}
+
+.projections-group {
+    display: flex;
+    gap: 20px;
+    transition: opacity 0.3s ease;
+}
+
+/* Position the main average box over the projections area */
+#left .main-avg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.3s ease;
+}
+
+#right .main-avg {
+    position: absolute;
+    transition: opacity 0.3s ease;
+}
+
+/* Reusable sizing from your solve-box */
+.avg-container, .avg-value-box {
+    width: 120px;
+}
+
+
+.avg-container, .projections-group {
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.hidden-stat {
+    opacity: 0;
+    transform: translateY(5px); /* Subtle slide down when disappearing */
+    pointer-events: none;
+}
+
+.visible-stat {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Color Coding */
+#left .main-avg .avg-label {
+    background-color: var(--color-left);
+}
+
+#left .main-avg .avg-value-box {
+    border-color: var(--color-left);
+}
+
+#right .main-avg .avg-label {
+    background-color: var(--color-right);
+    
+}
+
+#right .main-avg .avg-value-box {
+    border-color: var(--color-right);
+}
+
+#left .bpa .avg-label, #right .bpa .avg-label {
+    background-color: var(--color-bpa);
+}
+
+#left .wpa .avg-label, #right .wpa .avg-label {
+    background-color: var(--color-wpa);
+}
+
+#left .bpa .avg-value-box, #right .bpa .avg-value-box {
+    border-color: var(--color-bpa);
+}
+
+#left .wpa .avg-value-box, #right .wpa .avg-value-box {
+    border-color: var(--color-wpa);
+}

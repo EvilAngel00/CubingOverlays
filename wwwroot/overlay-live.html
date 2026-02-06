@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Head to Head Overlay</title>
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="/js/overlay-live.js"></script>
+    <link rel="stylesheet" href="/css/overlay.css" />
+</head>
+<body>
+    <div id="container">
+        <div id="left" class="player">
+            <div class="name-bar">
+                <div class="name">---</div>
+                <div class="flag-wrapper"></div>
+            </div>
+
+            <div id="times-left"></div>
+
+            <div class="stats-area">
+                <div class="projections-group">
+                    <div class="avg-container bpa">
+                        <div class="avg-label">BPA</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value">--</div>
+                        </div>
+                    </div>
+                    <div class="avg-container wpa">
+                        <div class="avg-label">WPA</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="avg-container main-avg">
+                    <div class="avg-label">Average</div>
+                    <div class="avg-value-box">
+                        <div class="avg-value">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="right" class="player">
+            <div class="name-bar">
+                <div class="flag-wrapper"></div>
+                <div class="name">---</div>
+            </div>
+
+            <div id="times-right"></div>
+
+            <div class="stats-area">
+                <div class="projections-group">
+                    <div class="avg-container bpa">
+                        <div class="avg-label">BPA</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value">--</div>
+                        </div>
+                    </div>
+                    <div class="avg-container wpa">
+                        <div class="avg-label">WPA</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="avg-container main-avg">
+                    <div class="avg-label">Average</div>
+                    <div class="avg-value-box">
+                        <div class="avg-value">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

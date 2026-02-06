@@ -1,0 +1,245 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <title>Competition Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0-beta.8/daisyui.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <style type="text/tailwindcss">
+        @theme {
+            /* This tells DaisyUI to respect the data-theme attribute */
+            --color-primary: var(--p);
+            --color-secondary: var(--s);
+            --color-accent: var(--a);
+        }
+        @layer utilities {
+            /* Force card containers to be a fixed height to keep the "Set" button centered */
+            #listA > div, #listB > div {
+                height: 50px;
+            }
+            .flag-error {
+                background-color: white !important;
+                background-image: linear-gradient(30deg, transparent 47%, black 48%, black 52%, transparent 53%), linear-gradient(-30deg, transparent 47%, black 48%, black 52%, transparent 53%) !important;
+            }
+        }
+        html {
+            scrollbar-gutter: stable;
+        }
+        #saveCompBtn:disabled {
+            pointer-events: auto;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-base-300 min-h-screen p-4 md:p-8">
+
+    <main class="max-w-6xl mx-auto space-y-8">
+
+        <header class="flex flex-col md:flex-row justify-between items-center bg-base-100 p-6 rounded-box shadow-lg border-b-4 border-primary">
+            <div>
+                <h1 class="text-3xl font-black uppercase tracking-tighter text-primary">Cubing Competition</h1>
+                <p class="text-sm opacity-70">Head-to-Head Management</p>
+            </div>
+
+            <div class="stats bg-base-200 shadow mt-4 md:mt-0">
+                <div class="stat py-2 px-4">
+                    <div class="stat-title">Current Event</div>
+                    <div id="event" class="stat-value text-lg text-secondary">---</div>
+                </div>
+                <div class="stat py-2 px-4 border-l border-base-300">
+                    <div class="stat-title">Round</div>
+                    <div id="round" class="stat-value text-lg">---</div>
+                </div>
+            </div>
+        </header>
+
+        <section class="collapse collapse-arrow bg-base-100 border border-base-300 shadow-xl mb-8">
+            <input type="checkbox" />
+            <div class="collapse-title text-xl font-bold flex items-center gap-4">
+                <span class="w-2 h-6 bg-primary rounded-full"></span>
+                Competitor Management
+            </div>
+            <div class="collapse-content">
+                <div class="flex justify-between items-center mb-4 p-2">
+                    <p class="text-sm opacity-60">Drag and drop to organize. Groups can be used for head-to-head management.</p>
+                    <div class="flex gap-2">
+                        <button onclick="CompetitorManager.swapGroups()" class="btn btn-sm btn-outline btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
+                            Swap Groups
+                        </button>
+                        <button onclick="CompetitorManager.openAdd()" class="btn btn-sm btn-primary">
+                            + Add New Competitor
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-[1fr_auto_1fr] gap-2 items-start">
+                    <div class="bg-base-200 p-4 rounded-box">
+                        <h3 class="text-xs font-bold uppercase opacity-50 mb-3 ml-1 text-center">Group A / Left</h3>
+                        <div id="listA" class="space-y-2 min-h-[150px]"></div>
+                    </div>
+
+                    <div id="setButtonsContainer" class="flex flex-col gap-2 pt-11">
+                    </div>
+
+                    <div class="bg-base-200 p-4 rounded-box">
+                        <h3 class="text-xs font-bold uppercase opacity-50 mb-3 ml-1 text-center">Group B / Right</h3>
+                        <div id="listB" class="space-y-2 min-h-[150px]"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <span class="w-2 h-6 bg-accent rounded-full"></span>
+                    Head-to-Head Matchup
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                <div class="card bg-base-100 shadow-xl border border-base-300">
+                    <div class="card-body p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="badge badge-primary font-bold">LEFT SIDE</span>
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold">Select Competitor</span></label>
+                            <select id="leftSelect" class="select select-bordered w-full select-primary font-bold"></select>
+                        </div>
+
+                        <div class="divider text-xs opacity-30 uppercase">Solve Entries</div>
+
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-1 gap-2">
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">1</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="left" data-solve="1" />
+                                </label>
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">2</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="left" data-solve="2" />
+                                </label>
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">3</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="left" data-solve="3" />
+                                </label>
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">4</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="left" data-solve="4" />
+                                </label>
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">5</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="left" data-solve="5" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 shadow-xl border border-base-300">
+                    <div class="card-body p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="badge badge-secondary font-bold">RIGHT SIDE</span>
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold">Select Competitor</span></label>
+                            <select id="rightSelect" class="select select-bordered w-full select-secondary font-bold"></select>
+                        </div>
+
+                        <div class="divider text-xs opacity-30 uppercase">Solve Entries</div>
+
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-1 gap-2">
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">1</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="right" data-solve="1" />
+                                </label>
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">2</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="right" data-solve="2" />
+                                </label>
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">3</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="right" data-solve="3" />
+                                </label>
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">4</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="right" data-solve="4" />
+                                </label>
+                                <label class="input input-sm input-bordered flex items-center gap-3">
+                                    <kbd class="kbd kbd-sm">5</kbd>
+                                    <input type="text" class="grow font-mono uppercase" placeholder="0.00" data-side="right" data-solve="5" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 flex justify-center">
+                <button id="submitTimesBtn" class="btn btn-primary btn-lg px-12 shadow-2xl group">
+                    Submit Times
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <dialog id="competitor_modal" class="modal">
+        <div class="modal-box border-t-4 border-accent">
+            <h3 class="font-bold text-lg">Add/Edit Competitor</h3>
+
+            <form id="competitor_form" onsubmit="event.preventDefault(); saveCompetitor();">
+                <div class="py-4 space-y-2">
+                    <div class="form-control">
+                        <label class="label py-1"><span class="label-text">WCA ID <span class="text-error">*</span></span></label>
+                        <input type="text" id="modal_wcaid" class="input input-bordered w-full" placeholder="2015REIS02" required />
+                        <div class="h-4">
+                            <span id="id_help_text" class="label-text-alt text-warning opacity-0 transition-opacity block px-1">
+                                This ID already exists!
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label py-1"><span class="label-text">Name <span class="text-error">*</span></span></label>
+                        <input type="text" id="modal_name" class="input input-bordered w-full" placeholder="Rui Reis" required />
+                    </div>
+
+                    <div class="form-control mt-2">
+                        <label class="label py-1"><span class="label-text">Country <span class="text-error">*</span></span></label>
+                        <input type="text" id="modal_country" class="input input-bordered w-full" placeholder="CH" required />
+                    </div>
+                </div>
+
+                <div class="modal-action mt-4">
+                    <button type="button" class="btn" onclick="competitor_modal.close()">Cancel</button>
+
+                    <button id="saveCompBtn" type="submit"
+                            class="btn btn-success text-white font-bold disabled:bg-error/20 disabled:text-error disabled:border-error/20 disabled:cursor-not-allowed"
+                            disabled>
+                        Add Competitor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="/js/competitor-manager.js"></script>
+    <script src="/js/control.js"></script>
+</body>
+</html>

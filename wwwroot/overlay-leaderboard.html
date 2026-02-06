@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/overlayHub")
+        .build();
+
+    connection.on("StateUpdated", state => {
+        updateUI(state);
+    });
+
+    async function start() {
+        await connection.start();
+        const res = await fetch("/api/state");
+        updateUI(await res.json());
+    }
+
+    start();
+</script>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+</body>
+</html>
