@@ -118,7 +118,7 @@
 
         div.innerHTML = `
         <div class="flex items-center gap-3">
-            <div class="flex-shrink-0 w-8 h-5 overflow-hidden rounded-sm flex items-center justify-center">
+            <div class="flex-shrink-0 w-8 h-5 overflow-hidden flex items-center justify-center">
                 <img 
                     src="https://flagcdn.com/h60/${flagCode}.png" 
                     alt="${c.country}" 

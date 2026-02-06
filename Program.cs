@@ -19,32 +19,73 @@ app.Run();
 
 static void SeedData(CompetitionState state)
 {
-    var rui = new Competitor(
-        "2015REIS02",
-        "Rui Reis",
-        "CH"
-    );
+    var competitors = new List<Competitor>(){
+        new(
+            "2014SEBA01",
+            "Juliette Sébastien",
+            "FR"
+        ),
+        new(
+            "2015CONT02",
+            "Pablo Contreras",
+            "FR"
+        ),
+        new(
+            "2018LUCM01",
+            "Mathis Luc",
+            "FR"
+        ),
+        new(
+            "2024DAMM01",
+            "Yassine Dammak",
+            "FR"
+        ),
+        new(
+            "2013COLI02",
+            "Victor Colin",
+            "FR"
+        ),
+        new(
+            "2012CARL03",
+            "Alexandre Carlier",
+            "FR"
+        ),
+        new(
+            "2015DEGL01",
+            "Lucas Déglise",
+            "FR"
+        ),
+        new(
+            "2013GERT01",
+            "Nicolas Gertner Kilian",
+            "FR"
+        ),
+        new(
+            "2010DESJ01",
+            "Jules Desjardin",
+            "FR"
+        ),
+        new(
+            "2018DALO01",
+            "Charles Daloz-Baltenberger",
+            "FR"
+        ),
+        new(
+            "2019POUC01",
+            "Alaric Pouchain",
+            "FR"
+        ),
+        new(
+            "2017RIVA09",
+            "Quentin Rivault",
+            "FR"
+        ),
+    };
 
-    var anela = new Competitor(
-        "2018ARIF02",
-        "Anela Arifovic Reis",
-        "BA"
-    );
+    state.Competitors.AddRange(competitors);
 
-    var sophian = new Competitor(
-        "2019GUID01",
-        "Sophian Guidara",
-        "TN"
-    );
-
-    var martina = new Competitor(
-       "2019BADT01",
-       "Martina Badtke",
-       "DE"
-   );
-
-    state.Competitors.AddRange([rui, anela, sophian, martina]);
-
+    state.Round.LeftGroupWcaIds = [.. competitors.Where((c, i) => i % 2 == 0).Select(c => c.WcaId)];
+    state.Round.RightGroupWcaIds = [.. competitors.Where((c, i) => i % 2 != 0).Select(c => c.WcaId)];
     state.Round.Event = "3x3";
     state.Round.RoundName = "Final";
 }

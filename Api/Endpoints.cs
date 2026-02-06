@@ -34,8 +34,6 @@ public static class Endpoints
         {
             existingCompetitor.Name = competitor.Name;
             existingCompetitor.Country = competitor.Country;
-            existingCompetitor.Stats.PersonalBestSingle = competitor.Stats.PersonalBestSingle;
-            existingCompetitor.Stats.PersonalBestAverage = competitor.Stats.PersonalBestAverage;
         }
         else
         {
@@ -96,7 +94,7 @@ public static class Endpoints
         }
 
         await NotifyStateUpdated(state, hub);
-        return Results.Ok();
+        return Results.Ok(state);
     }
 
     private static Task NotifyStateUpdated(

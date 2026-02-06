@@ -182,16 +182,23 @@ async function submit() {
         return;
     }
 
-    console.log("State before", state);
     state.competitors.find(c => c.wcaId === leftSelect.value).solves = getSolvesFromInputs("left", leftSelect.value);
     state.competitors.find(c => c.wcaId === rightSelect.value).solves = getSolvesFromInputs("right", rightSelect.value);
-    console.log("State after", state);
 
-    await fetch(`/api/updateState`, {
+    console.log("State before submit", state);
+    const response = await fetch(`/api/updateState`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(state)
     });
+
+    if (response.ok) {
+        const updatedState = await response.json();
+        state = updatedState;
+    } else {
+        alert("Error updating state.");
+    }
+    console.log("State after submit", state);
 }
 
 function getSolvesFromInputs(side, competitorId) {
