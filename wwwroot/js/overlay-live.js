@@ -149,6 +149,12 @@ function renderSide(side, competitorId, state) {
             neededValueContainer.style.background = "";
         }
     }
+
+    const pbSingleValueBox = document.getElementById(`${side}-pb-single`);
+    pbSingleValueBox.innerText = competitor.stats.personalBestSingle ? competitor.stats.personalBestSingle.toFixed(2) : "---";
+
+    const pbAverageValueBox = document.getElementById(`${side}-pb-average`);
+    pbAverageValueBox.innerText = competitor.stats.personalBestAverage ? competitor.stats.personalBestAverage.toFixed(2) : "---";
 }
 
 function calculateProjectedRank(targetAvg, currentId, allCompetitors) {

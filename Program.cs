@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<CompetitionState>();
 builder.Services.AddSignalR();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -13,7 +14,7 @@ app.UseStaticFiles();
 app.MapHub<OverlayHub>("/overlayHub");
 app.MapEndpoints();
 
-SeedData(app.Services.GetRequiredService<CompetitionState>());
+//SeedData(app.Services.GetRequiredService<CompetitionState>());
 
 app.Run();
 

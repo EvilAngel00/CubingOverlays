@@ -142,6 +142,9 @@ async function saveCompetitor() {
 function selectCompetitor(side, competitorId) {
     console.log("selectCompetitor", side);
 
+    if (!competitorId)
+        return;
+
     const inputs = document.querySelectorAll(
         `input[data-side="${side}"]`
     );
@@ -343,4 +346,53 @@ function updateLastSavedDisplay() {
             display.style.color = ''; // Back to success/default
         }, 100);
     }
+}
+
+async function processBatchImport() {
+    const textarea = document.getElementById('batch_ids');
+    const btn = document.getElementById('batchConfirmBtn');
+    const ids = textarea.value.split('\n')
+        .map(id => id.trim().toUpperCase())
+        .filter(id => id.length > 0)
+        .reverse();
+
+    if (ids.length === 0) return;
+
+    // UI Feedback
+    btn.disabled = true;
+    const originalText = btn.textContent;
+
+    for (let i = 0; i < ids.length; i++) {
+        btn.textContent = `Importing ${i + 1}/${ids.length}...`;
+
+        const newComp = {
+            wcaId: ids[i],
+            name: "Fetching...", // Backend will overwrite these
+            country: "--"
+        };
+
+        try {
+            await fetch("/api/addcompetitor", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newComp)
+            });
+        } catch (err) {
+            console.error(`Failed to import ${ids[i]}`, err);
+        }
+    }
+
+    // Refresh state and UI
+    const res = await fetch("/api/state");
+    state = await res.json();
+
+    // Update displays
+    CompetitorManager.renderList(state.competitors);
+    renderCompetitors();
+
+    // Cleanup
+    btn.disabled = false;
+    btn.textContent = originalText;
+    textarea.value = '';
+    document.getElementById('batch_modal').close();
 }

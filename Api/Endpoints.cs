@@ -1,8 +1,10 @@
 ﻿using CubingLayout.Helper;
 using CubingLayout.Hubs;
 using CubingLayout.Models;
+using CubingOverlays.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Net.Http;
 
 namespace CubingLayout.Api;
 
@@ -26,7 +28,8 @@ public static class Endpoints
     private static async Task<IResult> AddCompetitor(
         Competitor competitor,
         CompetitionState state,
-        IHubContext<OverlayHub> hub)
+        IHubContext<OverlayHub> hub,
+        IHttpClientFactory httpClientFactory)
     {
         var existingCompetitor = state.Competitors.FirstOrDefault(c => c.WcaId == competitor.WcaId);
 
@@ -37,6 +40,39 @@ public static class Endpoints
         }
         else
         {
+            try
+            {
+                var client = httpClientFactory.CreateClient();
+                var response = await client.GetAsync($"https://www.worldcubeassociation.org/api/v0/persons/{competitor.WcaId.ToUpper()}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var wcaData = await response.Content.ReadFromJsonAsync<WcaPersonResponse>();
+                    if (wcaData?.Person != null)
+                    {
+                        competitor.Name = wcaData.Person.Name;
+                        competitor.Country = wcaData.Person.CountryIso2;
+
+                        if (wcaData.PersonalRecords != null &&
+                            wcaData.PersonalRecords.TryGetValue("333", out var records))
+                        {
+                            // Convert centiseconds to seconds
+                            var singlePB = records.Single?.Best / 100.0 ?? 0;
+                            var averagePB = records.Average?.Best / 100.0 ?? 0;
+
+                            competitor.Stats.PersonalBestSingle = singlePB;
+                            competitor.Stats.PersonalBestAverage = averagePB;
+
+                            Console.WriteLine($"Fetched {competitor.Name}: Single {singlePB}s, Avg {averagePB}s");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"WCA API Error: {ex.Message}");
+            }
+
             state.Competitors.Add(competitor);
             if (state.Round.LeftGroupWcaIds.Count <= state.Round.RightGroupWcaIds.Count)
                 state.Round.LeftGroupWcaIds.Add(competitor.WcaId);
@@ -49,9 +85,9 @@ public static class Endpoints
     }
 
     private static async Task<IResult> DeleteCompetitor(
-    string wcaId,
-    CompetitionState state,
-    IHubContext<OverlayHub> hub)
+        string wcaId,
+        CompetitionState state,
+        IHubContext<OverlayHub> hub)
     {
         var competitor = state.Competitors.FirstOrDefault(c => c.WcaId == wcaId);
 
@@ -75,9 +111,9 @@ public static class Endpoints
     }
 
     private static async Task<IResult> UpdateState(
-    [FromBody] CompetitionState updatedState,
-    CompetitionState state,
-    IHubContext<OverlayHub> hub)
+        [FromBody] CompetitionState updatedState,
+        CompetitionState state,
+        IHubContext<OverlayHub> hub)
     {
         state.Round = updatedState.Round;
         state.Competitors = updatedState.Competitors;

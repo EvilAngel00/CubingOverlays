@@ -102,6 +102,9 @@
                             </svg>
                             Swap Groups
                         </button>
+                        <button onclick="document.getElementById('batch_modal').showModal()" class="btn btn-sm btn-outline btn-accent">
+                            + Batch Import
+                        </button>
                         <button onclick="CompetitorManager.openAdd()" class="btn btn-sm btn-primary">
                             + Add New Competitor
                         </button>
@@ -280,6 +283,24 @@
 
             <div class="modal-action">
                 <button class="btn btn-ghost" onclick="history_modal.close()">Close</button>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <dialog id="batch_modal" class="modal">
+        <div class="modal-box border-t-4 border-accent">
+            <h3 class="font-bold text-lg">Batch Import WCA IDs</h3>
+            <p class="text-xs opacity-60 mb-4">Enter one WCA ID per line. Names and PBs will be fetched automatically.</p>
+
+            <textarea id="batch_ids" class="textarea textarea-bordered w-full h-48 font-mono uppercase"
+                      placeholder="2015REIS02&#10;2018ARIF02&#10;2017REIS05"></textarea>
+
+            <div class="modal-action">
+                <button class="btn" onclick="batch_modal.close()">Cancel</button>
+                <button id="batchConfirmBtn" class="btn btn-accent" onclick="processBatchImport()">
+                    Import All
+                </button>
             </div>
         </div>
         <form method="dialog" class="modal-backdrop"><button>close</button></form>
