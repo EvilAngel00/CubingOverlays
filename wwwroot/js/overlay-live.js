@@ -1,4 +1,6 @@
-﻿const connection = new signalR.HubConnectionBuilder()
+﻿import { getBestSolve, getOrdinal, formatSolve } from './utils.js';
+
+const connection = new signalR.HubConnectionBuilder()
     .withUrl("/overlayHub")
     .build();
 
@@ -149,30 +151,31 @@ function renderSide(side, competitorId, state) {
     }
 }
 
-function formatSolve(solve) {
-    if (!solve) return "—";
-    if (solve.penalty === "dnf") return "DNF";
-    return solve.time.toFixed(2);
-}
+function calculateProjectedRank(targetAvg, currentId, allCompetitors) {
+    if (targetAvg === null) return null;
 
-function calculateProjectedRank(targetValue, currentId, allCompetitors) {
-    if (targetValue === null) return null;
+    const me = allCompetitors.find(c => c.wcaId === currentId);
+    const myBest = getBestSolve(me.solves);
+    const myAvg = targetAvg === -1 ? Infinity : targetAvg;
 
-    // 1. Get the "best current standing" for everyone else
-    const fieldBestValues = allCompetitors
-        .filter(c => c.wcaId !== currentId) // exclude self
-        .map(c => c.stats.average)
-        .filter(v => v !== null);
-
-    // 2. Rank is 1 + (how many OTHER people are strictly better than you)
     let betterCount = 0;
 
-    fieldBestValues.forEach(value => {
-        // A value is better if it's not DNF (-1) AND 
-        // (the target is a DNF OR the field value is lower)
-        const isFieldBetter = (value !== -1 && (targetValue === -1 || value < targetValue));
-        if (isFieldBetter) {
+    allCompetitors.forEach(opp => {
+        // Skip self and people who haven't finished an average
+        if (opp.wcaId === currentId || opp.stats.average === null) return;
+
+        const oppAvg = opp.stats.average === -1 ? Infinity : opp.stats.average;
+        const oppBest = getBestSolve(opp.solves);
+
+        // 1. Check Average (Primary)
+        if (oppAvg < myAvg) {
             betterCount++;
+        }
+        // 2. Check Single (Tie-breaker)
+        else if (oppAvg === myAvg) {
+            if (oppBest < myBest) {
+                betterCount++;
+            }
         }
     });
 
@@ -273,7 +276,7 @@ function calculateNeededForRank(competitor, allCompetitors, targetRank) {
         const myBest = allFive[0]; // Best single in the set
 
         if (myAvg < L_avg) return true;
-        if (myAvg === L_avg && myBest < L_best) return true;
+        if (myAvg === L_avg && myBest <= L_best) return true;
         return false;
     }
 
@@ -299,15 +302,4 @@ function calculateNeededForRank(competitor, allCompetitors, targetRank) {
     xWin = Math.round(xWin * 100) / 100;
 
     return xWin >= 0 ? xWin.toFixed(2) : "N/A";
-}
-
-function getOrdinal(n) {
-    if (!n) return "--";
-    const s = ["th", "st", "nd", "rd"],
-        v = n % 100;
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-}
-
-function getBestSolve(solves) {
-    return Math.min(...solves.map(s => (s.penalty === "dnf" ? Infinity : s.time)));
 }

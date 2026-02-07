@@ -55,6 +55,6 @@ public static class AverageCalculator
         // Remove index 0 (best) and index 4 (worst)
         // Average the middle 3
         var middleThree = sorted.Skip(1).Take(3);
-        return Math.Round(middleThree.Average(), 2);
+        return Math.Truncate(100 * middleThree.Average()) / 100;
     }
 }

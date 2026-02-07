@@ -65,31 +65,39 @@ body {
     flex-shrink: 0;
 }
 
-.leaderboard-row:nth-child(1) {
+/* 1st Place / Gold Styling */
+.leaderboard-row[data-rank="1"] {
     border-left: 4px solid var(--gold);
 }
 
-.leaderboard-row:nth-child(1) .rank {
-    color: var(--gold);
-    font-size: 36px;
-}
+    .leaderboard-row[data-rank="1"][data-tied="false"] .rank {
+        color: var(--gold);
+        font-size: 36px;
+    }
 
-.leaderboard-row:nth-child(2) {
+/* 2nd Place / Silver Styling */
+.leaderboard-row[data-rank="2"] {
     border-left: 4px solid var(--silver);
 }
 
-.leaderboard-row:nth-child(2) .rank {
-    color: var(--silver);
-    font-size: 32px;
-}
+    .leaderboard-row[data-rank="2"][data-tied="false"] .rank {
+        color: var(--silver);
+        font-size: 32px;
+    }
 
-.leaderboard-row:nth-child(3) {
+/* 3rd Place / Bronze Styling */
+.leaderboard-row[data-rank="3"] {
     border-left: 4px solid var(--bronze);
 }
 
-.leaderboard-row:nth-child(3) .rank {
-    color: var(--bronze);
-    font-size: 28px;
+    .leaderboard-row[data-rank="3"][data-tied="false"] .rank {
+        color: var(--bronze);
+        font-size: 28px;
+    }
+
+/* Shared Tie Logic: Remove border if tied with the one above */
+.leaderboard-row[data-tied="true"] {
+    border-left: 4px solid transparent;
 }
 
 .flag-wrapper {
