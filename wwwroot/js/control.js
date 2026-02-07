@@ -185,6 +185,9 @@ async function submit() {
     state.competitors.find(c => c.wcaId === leftSelect.value).solves = getSolvesFromInputs("left", leftSelect.value);
     state.competitors.find(c => c.wcaId === rightSelect.value).solves = getSolvesFromInputs("right", rightSelect.value);
 
+    BackupManager.save(state);
+    updateLastSavedDisplay();
+
     console.log("State before submit", state);
     const response = await fetch(`/api/updateState`, {
         method: "POST",
@@ -236,4 +239,108 @@ function getSolvesFromInputs(side, competitorId) {
         }
     });
     return solves;
+}
+
+function openHistoryModal() {
+    const list = document.getElementById('historyList');
+    const history = BackupManager.getHistory();
+
+    if (history.length === 0) {
+        list.innerHTML = `
+                        <div class="alert shadow-sm italic opacity-50 text-center py-8">
+                            No backup history found yet.
+                        </div>`;
+    } else {
+        list.innerHTML = history.map((entry, index) => `
+                        <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-colors group">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold font-mono opacity-40">${entry.timestamp}</span>
+                                <span class="text-sm font-semibold">${entry.state.round.event} - ${entry.state.round.roundName}</span>
+                            </div>
+                            <button onclick="restoreIndex(${index})" class="btn btn-xs btn-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                                Restore
+                            </button>
+                        </div>
+                    `).join('');
+    }
+    document.getElementById('history_modal').showModal();
+}
+
+async function restoreIndex(index) {
+    const history = BackupManager.getHistory();
+    const selected = history[index];
+
+    if (confirm(`Are you sure you want to restore the state from ${selected.timestamp}? This will overwrite current live data.`)) {
+        state = selected.state; // Overwrite current state
+
+        render(); // Update the control panel UI
+        await submit(); // Push the restored state to the server/overlay
+
+        document.getElementById('history_modal').close();
+    }
+}
+
+async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            let stateToRestore = null;
+
+            // Logic to determine if the file is a single state or a history array
+            if (Array.isArray(importedData) && importedData.length > 0) {
+                // If it's a history file (array), take the most recent entry
+                stateToRestore = importedData[0].state;
+            } else if (importedData.state) {
+                // If it's a single entry export
+                stateToRestore = importedData.state;
+            } else if (importedData.competitors && importedData.round) {
+                // If it's just the raw state object itself
+                stateToRestore = importedData;
+            }
+
+            if (!stateToRestore) {
+                throw new Error("Invalid file format: No competition state found.");
+            }
+
+            const confirmMsg = `Restore data from "${file.name}"? 
+This will overwrite all current live data for ${stateToRestore.round.event}.`;
+
+            if (confirm(confirmMsg)) {
+                state = stateToRestore;
+
+                render();
+                await submit();
+
+                alert("State successfully restored from file.");
+            }
+        } catch (err) {
+            console.error("Backup Load Error:", err);
+            alert("Error loading backup: Make sure the file is a valid .json competition backup.");
+        } finally {
+            event.target.value = '';
+        }
+    };
+    reader.readAsText(file);
+}
+
+function updateLastSavedDisplay() {
+    const history = BackupManager.getHistory();
+    const display = document.getElementById("lastSavedDisplay");
+
+    if (history && history.length > 0) {
+        display.textContent = history[0].timestamp;
+        display.classList.remove('opacity-70');
+        display.classList.add('opacity-100');
+
+        display.style.transition = 'none';
+        display.style.color = 'var(--p)'; // Primary color flash
+        setTimeout(() => {
+            display.style.transition = 'color 1s ease';
+            display.style.color = ''; // Back to success/default
+        }, 100);
+    }
 }

@@ -33,25 +33,54 @@
             pointer-events: auto;
             cursor: not-allowed;
         }
+        #historyList::-webkit-scrollbar {
+            width: 6px;
+        }
+        #historyList::-webkit-scrollbar-thumb {
+            background: var(--p);
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body class="bg-base-300 min-h-screen p-4 md:p-8">
 
     <main class="max-w-6xl mx-auto space-y-8">
 
-        <header class="flex flex-col md:flex-row justify-between items-center bg-base-100 p-6 rounded-box shadow-lg border-b-4 border-primary">
-            <div>
-                <h1 class="text-3xl font-black uppercase tracking-tighter text-primary">Cubing Competition</h1>
-                <p class="text-sm opacity-70">Head-to-Head Management</p>
+        <header class="flex flex-col lg:flex-row justify-between items-center bg-base-100 p-6 rounded-box shadow-lg border-b-4 border-primary gap-4">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black uppercase tracking-tighter text-primary">Cubing Competition</h1>
+                    <p class="text-sm opacity-70">Head-to-Head Management</p>
+                </div>
+                <div class="flex gap-2 ml-4 border-l border-base-300 pl-4">
+                    <button onclick="document.getElementById('backupFileInput').click()" class="btn btn-circle btn-ghost btn-sm tooltip tooltip-bottom" data-tip="Upload Backup File">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                    </button>
+                    <input type="file" id="backupFileInput" class="hidden" accept=".json" onchange="handleFileUpload(event)" />
+
+                    <button onclick="BackupManager.downloadAsFile()" class="btn btn-circle btn-ghost btn-sm tooltip tooltip-bottom" data-tip="Download Backup File">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                    </button>
+                    <button onclick="openHistoryModal()" class="btn btn-circle btn-ghost btn-sm tooltip tooltip-bottom" data-tip="Recovery History">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </button>
+                </div>
+
+                <div class="hidden sm:flex flex-col items-start min-w-[120px]">
+                    <span class="text-[10px] uppercase font-black opacity-30 leading-none">Status</span>
+                    <span id="lastSavedDisplay" class="text-[10px] font-mono text-success opacity-70 leading-tight">Waiting for save...</span>
+                </div>
             </div>
 
-            <div class="stats bg-base-200 shadow mt-4 md:mt-0">
+            <div class="stats bg-base-200 shadow">
                 <div class="stat py-2 px-4">
-                    <div class="stat-title">Current Event</div>
+                    <div class="stat-title text-xs uppercase font-bold opacity-50">Event</div>
                     <div id="event" class="stat-value text-lg text-secondary">---</div>
                 </div>
                 <div class="stat py-2 px-4 border-l border-base-300">
-                    <div class="stat-title">Round</div>
+                    <div class="stat-title text-xs uppercase font-bold opacity-50">Round</div>
                     <div id="round" class="stat-value text-lg">---</div>
                 </div>
             </div>
@@ -238,8 +267,27 @@
         </div>
     </dialog>
 
+    <dialog id="history_modal" class="modal">
+        <div class="modal-box border-t-4 border-secondary max-w-md">
+            <h3 class="font-bold text-xl flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                State Recovery
+            </h3>
+            <p class="text-sm opacity-60 mt-1">Select a previous state to restore. Current data will be overwritten.</p>
+
+            <div id="historyList" class="mt-6 space-y-2 max-h-96 overflow-y-auto pr-2">
+            </div>
+
+            <div class="modal-action">
+                <button class="btn btn-ghost" onclick="history_modal.close()">Close</button>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
     <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="/js/competitor-manager.js"></script>
     <script src="/js/control.js"></script>
+    <script src="/js/backup-manager.js"></script>
 </body>
 </html>
