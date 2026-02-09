@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace CubingLayout.Hubs;
+namespace CubingOverlays.Hubs;
 
 public class OverlayHub : Hub
 {

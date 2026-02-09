@@ -1,4 +1,4 @@
-﻿namespace CubingLayout.Models;
+﻿namespace CubingOverlays.Models;
 
 public class CompetitionState
 {

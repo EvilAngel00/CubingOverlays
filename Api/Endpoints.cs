@@ -1,12 +1,10 @@
-﻿using CubingLayout.Helper;
-using CubingLayout.Hubs;
-using CubingLayout.Models;
+﻿using CubingOverlays.Hubs;
 using CubingOverlays.Models;
+using CubingOverlays.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using System.Net.Http;
 
-namespace CubingLayout.Api;
+namespace CubingOverlays.Api;
 
 public static class Endpoints
 {
@@ -118,16 +116,7 @@ public static class Endpoints
         state.Round = updatedState.Round;
         state.Competitors = updatedState.Competitors;
 
-        var currentCompetitors = state.Competitors.FindAll(c =>
-            c.WcaId == state.Round.LeftCompetitorWcaId ||
-            c.WcaId == state.Round.RightCompetitorWcaId);
-
-        foreach (var competitor in currentCompetitors)
-        {
-            competitor.Stats.Average = AverageCalculator.CalculateAo5(competitor.Solves);
-            competitor.Stats.BestPossibleAverage = AverageCalculator.CalculateBPA(competitor.Solves);
-            competitor.Stats.WorstPossibleAverage = AverageCalculator.CalculateWPA(competitor.Solves);
-        }
+        CompetitionService.UpdateCompetitorStats(state);
 
         await NotifyStateUpdated(state, hub);
         return Results.Ok(state);

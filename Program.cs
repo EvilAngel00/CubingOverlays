@@ -1,6 +1,6 @@
-using CubingLayout.Api;
-using CubingLayout.Hubs;
-using CubingLayout.Models;
+using CubingOverlays.Api;
+using CubingOverlays.Hubs;
+using CubingOverlays.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
