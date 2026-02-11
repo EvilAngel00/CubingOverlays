@@ -7,13 +7,8 @@ public static class CompetitionService
 {
     public static void UpdateCompetitorStats(CompetitionState state)
     {
-        var activeIds = new[] { state.Round.LeftCompetitorWcaId, state.Round.RightCompetitorWcaId };
-
-        foreach (var id in activeIds)
-        {
-            var comp = state.Competitors.FirstOrDefault(c => c.WcaId == id);
-            if (comp == null) continue;
-
+        foreach (var comp in state.Competitors)
+        { 
             comp.Stats.Average = CalculateAo5(comp.Solves);
             comp.Stats.CurrentRank = CalculateRank(
                 comp.Stats.Average,

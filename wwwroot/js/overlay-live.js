@@ -37,7 +37,6 @@ function renderSide(side, competitorId, state) {
     renderPersonalBests(side, competitor.stats);
 }
 
-// 1. Name and Flag
 function renderCompetitorHeader(root, competitor) {
     const nameElement = root.querySelector(".name");
     const flagWrapper = root.querySelector(".flag-wrapper");
