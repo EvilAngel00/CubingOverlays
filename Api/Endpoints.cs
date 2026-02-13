@@ -17,6 +17,7 @@ public static class Endpoints
         api.MapPost("/updateState", UpdateState);
         api.MapPost("/addCompetitor", AddCompetitor);
         api.MapDelete("/competitor/{wcaId}", DeleteCompetitor);
+        api.MapGet("/rankings/{competitionId}", GetRankings);
 
         return app;
     }
@@ -125,4 +126,42 @@ public static class Endpoints
     private static Task NotifyStateUpdated(
         CompetitionState state,
         IHubContext<OverlayHub> hub) => hub.Clients.All.SendAsync("StateUpdated", state);
+
+    private static async Task<IResult> GetRankings(
+        string competitionId,
+        IHttpClientFactory httpClientFactory,
+        ICompetitionCacheService cacheService)
+    {
+        try
+        {
+            var client = httpClientFactory.CreateClient();
+            // Fetch from WCA Live API
+            var url = $"https://live.worldcubeassociation.org/api/competitions/{Uri.EscapeDataString(competitionId)}/results";
+            var response = await client.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return Results.NotFound(new { error = "Competition not found" });
+            }
+
+            var rankings = await response.Content.ReadFromJsonAsync<WcaLiveCompetitionResponse>();
+            
+            if (rankings == null)
+            {
+                return Results.BadRequest(new { error = "Invalid competition data" });
+            }
+
+            // Cache the data
+            cacheService.CacheCompetition(competitionId, rankings);
+
+            return Results.Ok(rankings);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"WCA Live API Error: {ex.Message}");
+            return Results.StatusCode(500);
+        }
+    }
 }
+
+

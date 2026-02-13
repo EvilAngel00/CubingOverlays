@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <title>Event Rankings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0-beta.8/daisyui.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <link rel="stylesheet" href="/css/overlay-event-ranking.css" />
+</head>
+<body class="bg-base-300 min-h-screen">
+    <main class="max-w-7xl mx-auto p-4 md:p-8">
+        <div class="bg-base-100 rounded-box shadow-xl border-t-4 border-secondary p-6">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 id="competition-title" class="text-4xl font-black uppercase tracking-tighter text-secondary">---</h1>
+                    <p id="event-subtitle" class="text-sm opacity-70 mt-1">Loading...</p>
+                </div>
+                <div id="error-message" class="alert alert-error hidden shadow-lg max-w-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l-2-2m0 0l-2-2m2 2l2-2m-2 2l-2 2m2-2l2 2m-2-2l-2-2m2 2l2 2M9 10.5a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg>
+                    <div>
+                        <h3 class="font-bold">Error</h3>
+                        <div id="error-text" class="text-xs">Failed to load rankings.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading-state" class="flex flex-col items-center justify-center py-20">
+                <span class="loading loading-spinner loading-lg text-secondary mb-4"></span>
+                <p class="text-lg opacity-60">Loading competition data...</p>
+            </div>
+
+            <div id="rankings-container" class="hidden overflow-x-auto">
+                <table class="table table-zebra w-full">
+                    <thead class="bg-base-200">
+                        <tr>
+                            <th class="text-left">Rank</th>
+                            <th class="text-left">Competitor</th>
+                            <th class="text-left">Country</th>
+                            <th class="text-center">Best</th>
+                            <th class="text-center">Average</th>
+                            <th class="text-center">Attempts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankings-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="/js/overlay-event-ranking.js"></script>
+</body>
+</html>

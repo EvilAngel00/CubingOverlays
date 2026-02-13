@@ -1,0 +1,63 @@
+:root {
+    --p: 63, 81%, 56%;
+    --s: 180, 67%, 52%;
+    --a: 44, 100%, 50%;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#rankings-list tr {
+    transition: background-color 0.2s ease;
+}
+
+#rankings-list tr:nth-child(1) {
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+#rankings-list tr:nth-child(2) {
+    background-color: rgba(192, 192, 192, 0.1);
+}
+
+#rankings-list tr:nth-child(3) {
+    background-color: rgba(205, 127, 50, 0.1);
+}
+
+/* Flag icons - using flag-icons CDN */
+@import url('https://cdn.jsdelivr.net/npm/flag-icons-css@6.9.0/css/flag-icons.min.css');
+
+.table {
+    font-size: 1.1rem;
+}
+
+.table thead th {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.9rem;
+    }
+
+    .table tbody td {
+        padding: 0.75rem;
+    }
+}

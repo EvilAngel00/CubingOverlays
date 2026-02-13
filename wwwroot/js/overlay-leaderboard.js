@@ -1,6 +1,4 @@
-﻿import { getBestSolve } from './utils.js';
-
-const connection = new signalR.HubConnectionBuilder()
+﻿const connection = new signalR.HubConnectionBuilder()
     .withUrl("/overlayHub")
     .build();
 
