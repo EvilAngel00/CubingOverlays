@@ -40,21 +40,30 @@ body {
 .event-icon {
     background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
     padding: 20px;
+    width: 160px;
+    height: 160px;
     color: white;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    aspect-ratio: 1.2 / 1;
-    min-height: 140px;
+    overflow: hidden;
 }
 
 .cubing-icon {
-    font-size: 6em;
     line-height: 1;
     display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-svg {
+    width: 80%; /* Scale it to fit comfortably in the box */
+    height: 80%;
+    filter: brightness(0) invert(1); /* Makes the black SVGs white to match your text */
+    object-fit: contain;
 }
 
 .competition-title {
@@ -96,6 +105,7 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
+    transition: opacity 0.3s;
 }
 
 .ranking-position {
@@ -199,4 +209,25 @@ body {
     background: white;
     width: 100%;
     height: 100%;
+}
+
+/* --- ANIMATIONS --- */
+
+/* Base state: hidden before animation starts */
+.animate-enter {
+    opacity: 0;
+    transform: translateX(-50px);
+    animation: slideInLeft 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes slideInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
