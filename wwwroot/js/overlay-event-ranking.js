@@ -22,7 +22,6 @@ class EventRankingOverlay {
 
         this.connection.on("RankingsError", (error) => {
             console.error("Rankings error:", error);
-            this.showError(error);
         });
 
         try {
@@ -33,7 +32,6 @@ class EventRankingOverlay {
             await this.restoreLastRankings();
         } catch (err) {
             console.error("SignalR connection failed:", err);
-            this.showError("Failed to connect to server");
         }
     }
 
@@ -54,74 +52,121 @@ class EventRankingOverlay {
     }
 
     renderRankings() {
-        if (!this.currentRankings) {
-            this.showError("No rankings data received");
+        if (!this.currentRankings || !this.currentRankings.results.length) {
+            console.log("No rankings data received");
             return;
         }
 
-        const loadingState = document.getElementById('loading-state');
-        const rankingsContainer = document.getElementById('rankings-container');
-        const errorMessage = document.getElementById('error-message');
+        const iconElem = document.getElementById('cubing-icon');
+        iconElem.className = 'cubing-icon'; // Reset classes
+        iconElem.classList.add(`event-${this.currentRankings.eventId}`);
 
-        loadingState.classList.add('hidden');
-        errorMessage.classList.add('hidden');
-        rankingsContainer.classList.remove('hidden');
-
-        // Update titles
-        const eventLabel = this.currentRankings.eventName;
+        const eventLabel = this.getEventName(this.currentRankings.eventName);
         const subtitleLabel = `${eventLabel} - Round ${this.currentRankings.roundNumber}`;
-        
         document.getElementById('competition-title').textContent = subtitleLabel;
-        document.getElementById('event-subtitle').textContent = `Rankings`;
 
-        // Render table
+        const attemptCount = this.currentRankings.results[0].attempts?.length || 0;
+
         const rankingsList = document.getElementById('rankings-list');
+
+        rankingsList.style.setProperty('--attempt-count', attemptCount);
+
         rankingsList.innerHTML = this.currentRankings.results
-            .map(result => this.createRankingRow(result))
+            .map(result => this.createRankingPill(result, this.currentRankings.eventId))
             .join('');
     }
 
-    createRankingRow(result) {
-        const bestTime = this.formatTime(result.best);
-        const averageTime = this.formatTime(result.average);
-        const attempts = this.formatAttempts(result.attempts);
+    createRankingPill(result, eventId) {
+        const mainTime = this.getMainDisplayTime(result, eventId);
         const flagCode = (result.person?.country || '--').toLowerCase();
-        const medalClass = this.getMedalClass(result.ranking);
         const competitorName = result.person?.name || 'Unknown';
-        const wcaId = result.person?.wcaId || '';
+        const countryName = result.person?.country || '--';
+
+        // Map only the number of attempts we are supposed to have
+        const attemptsHTML = result.attempts.map(attempt => `
+        <div class="att-cell">
+            <span>${this.formatTime(attempt, eventId)}</span>
+        </div>
+    `).join('');
 
         return `
-            <tr class="hover:bg-base-200 ${medalClass}">
-                <td class="font-bold text-lg text-accent">#${result.ranking}</td>
-                <td>
-                    <div class="font-semibold">${competitorName}</div>
-                    <div class="text-xs opacity-50">${wcaId}</div>
-                </td>
-                <td>
-                    <span class="fi fi-${flagCode} inline-block mr-2"></span>
-                    <span>${result.person?.country || '--'}</span>
-                </td>
-                <td class="text-center font-mono font-bold">${bestTime}</td>
-                <td class="text-center font-mono font-bold">${averageTime}</td>
-                <td class="text-center text-xs opacity-70">${attempts}</td>
-            </tr>
-        `;
+        <div class="ranking-pill">
+            <div class="ranking-position">${result.ranking}</div>
+            <div class="ranking-competitor">
+                <div class="ranking-left">
+                    <div class="flag-wrapper">
+                        <img src="https://flagcdn.com/h60/${flagCode}.png" 
+                             alt="${countryName}"
+                             onerror="this.style.display='none'; this.parentElement.classList.add('flag-error');">
+                    </div>
+                    <div class="ranking-competitor-name" title="${competitorName}">${competitorName}</div>
+                </div>
+
+                <div class="ranking-stats-grid">
+                    ${attemptsHTML}
+                    <div class="avg-cell">${mainTime}</div>
+                </div>
+            </div>
+        </div>
+    `;
     }
 
-    getMedalClass(ranking) {
-        if (ranking === 1) return 'bg-yellow-500/10';
-        if (ranking === 2) return 'bg-gray-400/10';
-        if (ranking === 3) return 'bg-orange-700/10';
-        return '';
+    getEventName(eventName) {
+        if (eventName === '444bf') {
+            return "4x4x4 Blindfolded";
+        } else if (eventName === '555bf') {
+            return "5x5x5 Blindfolded";
+        } else {
+            return eventName;
+        }
     }
 
-    formatTime(centiseconds) {
-        if (!centiseconds || centiseconds <= 0) {
-            if (centiseconds === -1) return 'DNF';
+    getMainDisplayTime(result, eventId) {
+        const blindfoldEvents = ['333bf', '444bf', '555bf', '333mbf'];
+        if (blindfoldEvents.includes(eventId)) {
+            return this.formatTime(result.best, eventId);
+        } else if (eventId === '333fm') {
+            return (result.average / 100).toFixed(2);
+        }
+        return this.formatTime(result.average, eventId);
+    }
+
+    formatTime(value, eventId) {
+        if (!value || value <= 0) {
+            if (value === -1) return 'DNF';
             return '---';
         }
+
+        if (eventId === "333mbf") {
+            const str = value.toString().padStart(10, '0');
+
+            const dd = parseInt(str.substring(1, 3));
+            const ttttt = parseInt(str.substring(3, 8));
+            const mm = parseInt(str.substring(8, 10));
+
+            const difference = 99 - dd;
+            const missed = mm;
+            const solved = difference + missed;
+            const attempted = solved + missed;
+
+            // Format the TTTTT seconds into mm:ss
+            let timeStr = "";
+            if (ttttt === 99999) {
+                timeStr = "??:??";
+            } else {
+                const mins = Math.floor(ttttt / 60);
+                const secs = ttttt % 60;
+                timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            return `${solved}/${attempted} ${timeStr}`;
+        }
+
+        if (eventId === "333fm") {
+            return value;
+        }
         
-        const seconds = centiseconds / 100;
+        const seconds = value / 100;
         
         if (seconds >= 60) {
             const minutes = Math.floor(seconds / 60);
@@ -143,15 +188,6 @@ class EventRankingOverlay {
             if (a === 0) return '---';
             return (a / 100).toFixed(2);
         }).join(', ');
-    }
-
-    showError(message) {
-        const loadingState = document.getElementById('loading-state');
-        const errorMessage = document.getElementById('error-message');
-        
-        loadingState.classList.add('hidden');
-        errorMessage.classList.remove('hidden');
-        document.getElementById('error-text').textContent = message;
     }
 }
 

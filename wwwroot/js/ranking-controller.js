@@ -116,7 +116,9 @@ class RankingController {
             roundSelect.remove(1);
         }
 
-        selectedEvent.rounds.forEach(round => {
+        selectedEvent.rounds
+            .sort((a, b) => a.number - b.number)
+            .forEach(round => {
             const option = document.createElement('option');
             option.value = round.number;
             option.textContent = `Round ${round.number}`;
@@ -174,7 +176,9 @@ class RankingController {
             'pyram': 'Pyraminx',
             'skewb': 'Skewb',
             'sq1': 'Square-1',
-            '333mbf': '3x3x3 Multi-Blind'
+            '333mbf': '3x3x3 Multi-Blind',
+            '444bf': '4x4x4 Blindfolded',
+            '555bf': '5x5x5 Blindfolded'
         };
         return eventNames[eventId] || eventId;
     }

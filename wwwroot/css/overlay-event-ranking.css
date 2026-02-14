@@ -1,63 +1,202 @@
 :root {
-    --p: 63, 81%, 56%;
-    --s: 180, 67%, 52%;
-    --a: 44, 100%, 50%;
+    --primary: #4DD84B;
+    --primary-dark: #47c443;
+    --secondary: #7f6bff;
+    --secondary-dark: #6c66bf;
+    --accent: #ff7438;
+    --text-light: #ffffff;
+    --bg-dark: #0f1419;
+    --bg-card: #1a1f2e;
+    --chroma: transparent;
 }
 
 * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
-html {
-    font-family: system-ui, -apple-system, sans-serif;
-}
-
 body {
-    margin: 0;
-    padding: 0;
+    background-color: var(--chroma);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    padding: 50px;
 }
 
-#rankings-list tr {
-    transition: background-color 0.2s ease;
+.container {
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
 }
 
-#rankings-list tr:nth-child(1) {
-    background-color: rgba(255, 215, 0, 0.1);
+/* Header Styles (unchanged) */
+.header-content {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: stretch;
+    justify-content: flex-start;
 }
 
-#rankings-list tr:nth-child(2) {
-    background-color: rgba(192, 192, 192, 0.1);
+.event-icon {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+    padding: 20px;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    aspect-ratio: 1.2 / 1;
+    min-height: 140px;
 }
 
-#rankings-list tr:nth-child(3) {
-    background-color: rgba(205, 127, 50, 0.1);
+.cubing-icon {
+    font-size: 6em;
+    line-height: 1;
+    display: block;
 }
 
-/* Flag icons - using flag-icons CDN */
-@import url('https://cdn.jsdelivr.net/npm/flag-icons-css@6.9.0/css/flag-icons.min.css');
-
-.table {
-    font-size: 1.1rem;
+.competition-title {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
 }
 
-.table thead th {
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
-}
-
-.table tbody td {
-    padding: 1rem;
-    vertical-align: middle;
-}
-
-@media (max-width: 768px) {
-    .table {
-        font-size: 0.9rem;
+    .competition-title h1 {
+        font-size: 56px;
+        font-weight: bold;
+        letter-spacing: 3px;
+        margin-bottom: 8px;
+        color: var(--text-light);
     }
 
-    .table tbody td {
-        padding: 0.75rem;
+    .competition-title p {
+        font-size: 18px;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.9);
+        text-transform: uppercase;
     }
+
+/* --- RANKING LIST STYLES --- */
+
+.rankings-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 12px;
+    gap: 12px;
+}
+
+.ranking-pill {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.ranking-position {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.ranking-competitor {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    display: flex;
+    align-items: center;
+    height: 70px;
+    padding: 0 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    flex: 1;
+    overflow: hidden;
+}
+
+/* --- 50% SPLIT LOGIC --- */
+
+/* Left Half: Flag + Name */
+.ranking-left {
+    flex: 0 0 40%;
+    max-width: 40%;
+    display: flex;
+    align-items: center;
+    padding-right: 20px;
+}
+
+.flag-wrapper {
+    width: 50px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+    .flag-wrapper img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+/* Name Truncation */
+.ranking-competitor-name {
+    color: white;
+    font-size: 32px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.ranking-stats-grid {
+    flex: 1; /* Takes the remaining 60% */
+    display: grid;
+    /* Uses the variable from JS to set number of columns + 1 for average */
+    grid-template-columns: repeat(var(--attempt-count, 5), 1fr) max-content;
+    align-items: center;
+    height: 100%;
+}
+
+.att-cell {
+    display: flex;
+    justify-content: center; /* Horizontally centered */
+    align-items: center; /* Vertically centered */
+    font-size: 32px;
+    color: rgba(255, 255, 255, 0.9);
+    font-variant-numeric: tabular-nums;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    height: 40%; /* Makes the vertical divider look like a clean table cell */
+}
+
+/* The Average Cell */
+.avg-cell {
+    font-size: 34px;
+    font-weight: 900;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: white;
+    padding-left: 15px;
+    white-space: nowrap;
+    min-width: 130px;
+}
+
+.flag-error {
+    background: white;
+    width: 100%;
+    height: 100%;
 }
