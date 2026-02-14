@@ -188,6 +188,11 @@ class EventRankingOverlay {
         if (blindfoldEvents.includes(eventId)) {
             return this.formatTime(result.best, eventId);
         } else if (eventId === '333fm') {
+            if (!result.average || result.average <= 0) {
+                if (result.average === -1) return 'DNF';
+                if (result.average === -2) return 'DNS';
+                return '';
+            }
             return (result.average / 100).toFixed(2);
         }
         return this.formatTime(result.average, eventId);

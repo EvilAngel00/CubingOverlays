@@ -109,7 +109,7 @@ public class FilteredRankingResult
     public int Average { get; set; }
 
     [JsonPropertyName("attempts")]
-    public List<int> Attempts { get; set; } = new();
+    public List<int> Attempts { get; set; } = [];
 
     [JsonPropertyName("person")]
     public WcaLivePerson Person { get; set; }
@@ -117,17 +117,75 @@ public class FilteredRankingResult
 
 public class FilteredRankingResponse
 {
+    [JsonPropertyName("competitionName")]
+    public string CompetitionName { get; set; }
+
     [JsonPropertyName("eventName")]
     public string EventName { get; set; }
 
     [JsonPropertyName("eventId")]
     public string EventId { get; set; }
 
+    [JsonPropertyName("format")]
+    public string Format { get; set; }
+
     [JsonPropertyName("roundNumber")]
     public int RoundNumber { get; set; }
 
     [JsonPropertyName("results")]
     public List<FilteredRankingResult> Results { get; set; } = new();
+}
+
+// WCIF Response Models
+public class WcaWcifResponse
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("events")]
+    public List<WcaWcifEvent> Events { get; set; } = new();
+}
+
+public class WcaWcifEvent
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; }
+
+    [JsonPropertyName("rounds")]
+    public List<WcaWcifRound> Rounds { get; set; } = new();
+}
+
+public class WcaWcifRound
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; }
+
+    [JsonPropertyName("format")]
+    public string Format { get; set; }
+
+    [JsonPropertyName("timeLimit")]
+    public WcaTimeLimit TimeLimit { get; set; }
+
+    [JsonPropertyName("cutoff")]
+    public WcaCutoff Cutoff { get; set; }
+}
+
+public class WcaTimeLimit
+{
+    [JsonPropertyName("centiseconds")]
+    public int Centiseconds { get; set; }
+}
+
+public class WcaCutoff
+{
+    [JsonPropertyName("numberOfAttempts")]
+    public int NumberOfAttempts { get; set; }
+
+    [JsonPropertyName("attemptResult")]
+    public int AttemptResult { get; set; }
 }
 
 

@@ -17,8 +17,9 @@ public class OverlayHub : Hub
     public async Task RequestRankings(string competitionId, string eventId, int roundNumber)
     {
         // Get cached competition data
-        var competitionData = _cacheService.GetCachedCompetition(competitionId);
-        
+        var competitionData = _cacheService.GetCachedWcaLiveCompetitionData(competitionId);
+        var competitionWcifData = _cacheService.GetCachedWcifCompetitionData(competitionId);
+
         if (competitionData == null)
         {
             await Clients.Caller.SendAsync("RankingsError", "Competition data not found. Please fetch the competition first.");
@@ -27,7 +28,7 @@ public class OverlayHub : Hub
 
         try
         {
-            var filteredResponse = FilterRankings(competitionData, eventId, roundNumber);
+            var filteredResponse = FilterRankings(competitionData, competitionWcifData, eventId, roundNumber);
             
             if (filteredResponse == null)
             {
@@ -60,7 +61,12 @@ public class OverlayHub : Hub
         return LastSentRankings;
     }
 
-    private FilteredRankingResponse? FilterRankings(WcaLiveCompetitionResponse competitionData, string eventId, int roundNumber)
+    private FilteredRankingResponse? FilterRankings(
+        WcaLiveCompetitionResponse competitionData,
+        WcaWcifResponse? wcaWcifData,
+        string eventId,
+        int roundNumber
+        )
     {
         if (competitionData == null)
             return null;
@@ -102,10 +108,15 @@ public class OverlayHub : Hub
             })
             .ToList();
 
+        var format = wcaWcifData?.Events
+            .FirstOrDefault(e => e.Id == eventId)?.Rounds
+            .FirstOrDefault(r => r.Id == $"{eventId}-r{roundNumber}")?.Format ?? "";
         return new FilteredRankingResponse
         {
+            CompetitionName = wcaWcifData != null ? wcaWcifData.Name : "",
             EventName = GetEventName(eventId),
             EventId = eventId,
+            Format = format,
             RoundNumber = roundNumber,
             Results = filteredResults
         };
