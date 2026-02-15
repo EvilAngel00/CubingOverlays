@@ -28,6 +28,17 @@ public static class CompetitionService
             comp.Stats.NeededForFirst = CalculateNeededForRank(comp, state.Competitors, 1);
             comp.Stats.NeededForPodium = CalculateNeededForRank(comp, state.Competitors, 3);
         }
+
+        var activeIds = new[] { state.Round.LeftCompetitorWcaId, state.Round.RightCompetitorWcaId };
+
+        foreach (var id in activeIds)
+        {
+            var comp = state.Competitors.FirstOrDefault(c => c.WcaId == id);
+            if (comp == null) continue;
+
+            comp.Stats.NeededForFirst = CalculateNeededForRank(comp, state.Competitors, 1);
+            comp.Stats.NeededForPodium = CalculateNeededForRank(comp, state.Competitors, 3);
+        }
     }
 
     private static double? CalculateAo5(Solve?[] solves)
@@ -180,7 +191,7 @@ public static class CompetitionService
         var sorted = times.OrderBy(t => t).ToList();
 
         var middleThree = sorted.Skip(1).Take(3);
-        return Math.Truncate(100 * middleThree.Average()) / 100;
+        return Math.Round(100 * middleThree.Average()) / 100;
     }
 
     private static double? GetBestSingle(Solve?[] solves)
@@ -210,8 +221,10 @@ public static class CompetitionService
             && c.Stats.CurrentRank <= targetRank)
             .ToList();
 
+
         // If target rank is higher than the max rank, any time works
         if (targetRank > validCompetitors.Select(c => c.Stats.CurrentRank).Max()) return -1;
+        if (targetRank > validCompetitors.Count) return -1;
 
         var targetCompetitor = validCompetitors[targetRank - 1];
         var lAvg = targetCompetitor.Stats.Average!.Value;
@@ -245,8 +258,11 @@ public static class CompetitionService
         // Tie-break Logic
         double myBestWithX = Math.Min(sortedV[0], xWin);
         if (myBestWithX >= lBest)
+        {
             // If we can't win the tie-break, we must beat the average by at least 0.01
-            xWin = (targetSum - 0.01) - sortedV[1] - sortedV[2];
+            targetSum = Math.Round((lAvg - 0.006) * 3.0 * 100) / 100;
+            xWin = targetSum - sortedV[1] - sortedV[2];
+        }
 
         xWin = Math.Round(xWin * 100) / 100;
 
