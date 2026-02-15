@@ -2,14 +2,7 @@
     /* Side Colors */
     --color-bpa: #27ae60;
     --color-wpa: #c0392b;
-    --bg-solid-dark: #1a1a1a; /* Looks like 80% black */
-    --bg-solid-dim: #333333; /* Looks like 40% black */
     --border-default: #444444;
-    /* Text */
-    --color-text: #ecf0f1;
-    --color-text-dim: #7f8c8d; /* For empty boxes */
-    /* Chroma Key Background */
-    --chroma-key: transparent; /* Magenta */
 }
 
 #container {
@@ -20,7 +13,7 @@
     width: 100vw;
     padding: 60px;
     box-sizing: border-box;
-    background-color: var(--chroma-key);
+    background-color: var(--chroma);
 }
 
 .player {
@@ -50,18 +43,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--bg-solid-dark);
+    background-color: var(--bg-dark);
     border: 2px solid var(--accent);
     border-radius: 8px;
     font-weight: bold;
     font-size: 1.8rem;
-    color: var(--color-text);
+    color: var(--text-light);
 }
 
     .solve-box[data-empty="true"] {
-        color: var(--color-text-dim);
-        background-color: var(--bg-solid-dim);
-        border-color: var(--bg-solid-dim);
+        color: var(--text-light-dim);
+        background-color: var(--bg-dim);
+        border-color: var(--bg-dim);
     }
 
 .name-bar {
@@ -148,7 +141,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--bg-solid-dark);
+    background-color: var(--bg-dark);
     border: 2px solid var(--border-default);
     border-radius: 8px;
 }
@@ -163,9 +156,8 @@
     position: absolute;
     width: 40px;
     height: 40px;
-    background-color: var(--bg-solid-dim);
+    background-color: var(--bg-dark);
     border: 2px solid var(--border-default);
-    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -177,25 +169,31 @@
 
 /* Positioning for Left Player: Stick to the right of the box */
 #left .rank-box {
-    right: -25px; /* Halfway overlap or full exit depending on preference */
-    top: 10px;
+    border-radius: 0px 4px 4px 0px;
+    right: -33px;
+    top: 12px;
 }
 
 /* Positioning for Right Player: Stick to the left of the box */
 #right .rank-box {
-    left: -25px;
-    top: 10px;
+    border-radius: 4px 0px 0px 4px;
+    left: -33px;
+    top: 12px;
 }
 
 /* Color coding to match the labels */
 #left .main-avg .rank-box {
     border-color: var(--primary);
     color: var(--primary);
+    right: -38px;
+    top: 10px;
 }
 
 #right .main-avg .rank-box {
     border-color: var(--secondary);
     color: var(--secondary);
+    left: -38px;
+    top: 10px;
 }
 
 .bpa .rank-box {
@@ -317,14 +315,14 @@
 .pb-lbl {
     font-size: 0.85rem;
     font-weight: bold;
-    color: var(--color-text-dim); /* Dimmed color so values pop */
+    color: var(--text-light-dim); /* Dimmed color so values pop */
 }
 
 /* The actual time values */
 .pb-val {
     font-weight: bold;
     font-size: 1.1rem; /* Smaller than main avg (1.8rem) to fit */
-    color: var(--color-text);
+    color: var(--text-light);
 }
 
 /* Color Coding */

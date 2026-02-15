@@ -25,9 +25,10 @@
     --secondary: rgba(127, 107, 255, 0.9);
     --secondary-dark: rgba(108, 102, 191, 0.9);
     --accent: rgba(255, 116, 56, 0.9);
-    --text-light: rgba(255, 255, 255, 0.9);
+    --text-light: rgba(236, 240, 241, 1);
+    --text-light-dim: rgba(127, 140, 141, 0.9);
     --bg-dark: rgba(15, 20, 25, 0.9);
-    --bg-card: rgba(26, 31, 46, 0.9);
+    --bg-dim: rgba(51, 51, 51, 0.9);
     --chroma: transparent;
 }
 
