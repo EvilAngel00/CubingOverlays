@@ -1,70 +1,104 @@
-﻿const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/overlayHub")
-    .build();
+﻿import { OverlayCore } from './overlay-core.js';
 
-connection.on("StateUpdated", state => {
-    console.log("StateUpdated");
-    console.log("State", state);
-    renderLeaderboard(state);
-});
-
-async function start() {
-    try {
-        console.log("Start");
-        await connection.start();
-        const res = await fetch("/api/state");
-        const state = await res.json();
-        console.log("State", state);
-        renderLeaderboard(state);
-    } catch (err) {
-        console.error("SignalR Connection Error: ", err);
+class LeaderboardOverlay extends OverlayCore {
+    constructor() {
+        super();
+        this.lastFingerprint = "";
+        this.state = null;
+        this.maxAttemptCount = 0;
     }
-}
 
-start();
+    async init() {
+        this.connection.on("StateUpdated", state => {
+            console.log("StateUpdated");
+            console.log("State", state);
+            this.state = state;
+            this.render(state);
+        });
+        this.connection.on("RankingsReceived", (filteredRankings) => {
+            console.log("Rankings received:", filteredRankings);
+            this.competitionName = filteredRankings.competitionName;
+        });
+        await this.start();
 
-let lastLeaderboardFingerprint = "";
+        const res = await fetch("/api/state");
+        this.state = await res.json();
+        console.log("Fetched State", this.state);
 
-function renderLeaderboard(state) {
-    const listElement = document.getElementById("leaderboard-list");
+        await this.restoreLastRankings();
+        if (this.currentRankings) {
+            this.competitionName = this.currentRankings.competitionName;
+        }
 
-    const ranked = state.competitors
-        .filter(c => c.stats.currentRank !== null && c.stats.currentRank !== undefined)
-        .sort((a, b) => {
-            if (a.stats.currentRank !== b.stats.currentRank) return a.stats.currentRank - b.stats.currentRank;
-            return a.name.localeCompare(b.name);
+        this.render(this.state);
+    }
+
+    render(state) {
+        const compTitleEl = document.getElementById('competition-name');
+        if (compTitleEl) compTitleEl.textContent = this.competitionName;
+
+        const listElement = document.getElementById("rankings-list");
+
+        const ranked = state.competitors
+            .filter(c => c.stats.currentRank != null)
+            .sort((a, b) => a.stats.currentRank - b.stats.currentRank || a.name.localeCompare(b.name));
+
+        // Calculate max attempt count for grid layout
+        this.maxAttemptCount = Math.max(
+            ...ranked.map(c => c.solves?.length || 0)
+        );
+        listElement.style.setProperty('--attempt-count', this.maxAttemptCount);
+
+        const fingerprint = ranked.map(c => `${c.wcaId}-${c.stats.average}`).join('|');
+        if (fingerprint === this.lastFingerprint) return;
+        this.lastFingerprint = fingerprint;
+
+        listElement.innerHTML = ranked.map((c, i) => this.createPill(c, i, ranked)).join('');
+
+        const items = listElement.querySelectorAll('.ranking-pill');
+        items.forEach((item, index) => {
+            item.style.animationDelay = `${index * 50}ms`;
+        });
+    }
+
+    createPill(c, index, ranked) {
+        const flag = (c.country || '--').toLowerCase();
+        const displayAvg = this.formatTime(c.stats.average * 100, this.state.eventId);
+
+        const paddedAttempts = Array.from({ length: this.maxAttemptCount }, (_, i) => {
+            return (c.solves && c.solves[i] !== undefined) ? c.solves[i].time * 100 : 0;
         });
 
-    const currentFingerprint = ranked
-        .map(c => `${c.wcaId}-${c.stats.currentRank}-${c.stats.average}`)
-        .join('|');
-
-    if (currentFingerprint === lastLeaderboardFingerprint) return;
-    lastLeaderboardFingerprint = currentFingerprint;
-
-    listElement.innerHTML = ranked.map((c, index) => {
-        const flagCode = (c.country || '--').toLowerCase();
-        const displayAvg = c.stats.average === -1 ? "DNF" : c.stats.average.toFixed(2);
+        const attemptsHTML = paddedAttempts.map(attempt => `
+            <div class="att-cell">
+                <span>${this.formatTime(attempt, this.state.eventId)}</span>
+            </div>
+        `).join('');
 
         const isTiedWithPrevious = index > 0 && c.stats.currentRank === ranked[index - 1].stats.currentRank;
 
         return `
-            <div class="leaderboard-row" 
+            <div class="ranking-pill animate-enter"
+                 style="opacity: 0"
                  data-rank="${c.stats.currentRank}" 
-                 data-tied="${isTiedWithPrevious}" 
-                 style="--delay: ${index * 0.1}s">
-                <div class="rank">
-                    ${isTiedWithPrevious ? "" : c.stats.currentRank}
+                 data-tied="${isTiedWithPrevious}">
+                <div class="ranking-position">${c.stats.currentRank}</div>
+                <div class="ranking-competitor">
+                    <div class="ranking-left">
+                        <div class="flag-wrapper">
+                            <img src="https://flagcdn.com/h60/${flag}.png"
+                                 alt="${c.country || '--'}"
+                                 onerror="this.style.display='none'; this.parentElement.classList.add('flag-error');">
+                        </div>
+                        <div class="ranking-competitor-name" title="${c.name}">${c.name}</div>
+                    </div>
+                    <div class="ranking-stats-grid">
+                        ${attemptsHTML}
+                        <div class="avg-cell">${displayAvg}</div>
+                    </div>
                 </div>
-                <div class="flag-wrapper">
-                    <img src="https://flagcdn.com/h60/${flagCode}.png" 
-                         onerror="this.style.display='none'; this.parentElement.classList.add('flag-error');">
-                </div>
-                <div class="name">${c.name}</div>
-                <div class="stats">
-                    <span class="average-value">${displayAvg}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
+            </div>`;
+    }
 }
+
+new LeaderboardOverlay().init();

@@ -1,24 +1,30 @@
-class EventRankingOverlay {
+import { OverlayCore } from './overlay-core.js';
+
+class EventRankingOverlay extends OverlayCore {
     constructor() {
-        this.connection = null;
+        super();
         this.currentRankings = null;
 
         this.paginationTimer = null;
         this.currentIndex = 0;
-        this.pageSize = 20;
-        this.loopDelay = 8000; // milliseconds
     }
 
-    init() {
-        this.initializeSignalR();
+    async init() {
+        await this.initializeSignalR();
+        await this.start();
+
+        try {
+            const settings = await this.connection.invoke("GetDisplaySettings");
+            this.applySettings(settings, false); // apply without restarting presentation yet
+
+            await this.restoreLastRankings();
+            this.startPresentation();
+        } catch (err) {
+            console.error("SignalR connection failed:", err);
+        }
     }
 
     async initializeSignalR() {
-        this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("/overlayHub")
-            .withAutomaticReconnect()
-            .build();
-
         this.connection.on("SettingsUpdated", (settings) => {
             console.log("Settings updated from server:", settings);
             this.applySettings(settings);
@@ -33,18 +39,6 @@ class EventRankingOverlay {
         this.connection.on("RankingsError", (error) => {
             console.error("Rankings error:", error);
         });
-
-        try {
-            await this.connection.start();
-            console.log("SignalR connected");
-
-            const settings = await this.connection.invoke("GetDisplaySettings");
-            this.applySettings(settings, false); // apply without restarting presentation yet
-
-            await this.restoreLastRankings();
-        } catch (err) {
-            console.error("SignalR connection failed:", err);
-        }
     }
 
     applySettings(settings, restartIfActive = true) {
@@ -61,21 +55,6 @@ class EventRankingOverlay {
         // If we are currently showing rankings, restart the loop to apply new page size/speed
         if (restartIfActive && this.currentRankings) {
             this.startPresentation();
-        }
-    }
-
-    async restoreLastRankings() {
-        try {
-            const lastRankings = await this.connection.invoke("GetLastRankings");
-            if (lastRankings) {
-                console.log("Restored last rankings:", lastRankings);
-                this.currentRankings = lastRankings;
-                this.startPresentation();
-            } else {
-                console.log("No previous rankings to restore");
-            }
-        } catch (err) {
-            console.error("Error restoring last rankings:", err);
         }
     }
 
@@ -116,7 +95,7 @@ class EventRankingOverlay {
                  alt="${eventId}">`;
 
         // Get strings
-        const eventLabel = this.getEventName(this.currentRankings.eventName);
+        const eventLabel = this.currentRankings.eventName;
         const competitionName = this.currentRankings.competitionName || 'Competition Name';
         const roundLabel = `Round ${this.currentRankings.roundNumber}`;
 
@@ -195,7 +174,8 @@ class EventRankingOverlay {
         `).join('');
 
         return `
-            <div class="ranking-pill animate-enter" style="opacity: 0"> <div class="ranking-position">${result.ranking}</div>
+            <div class="ranking-pill animate-enter" style="opacity: 0">
+                <div class="ranking-position">${result.ranking}</div>
                 <div class="ranking-competitor">
                     <div class="ranking-left">
                         <div class="flag-wrapper">
@@ -213,73 +193,6 @@ class EventRankingOverlay {
                 </div>
             </div>
         `;
-    }
-
-    getEventName(eventName) {
-        if (eventName === '444bf') return "4x4x4 Blindfolded";
-        if (eventName === '555bf') return "5x5x5 Blindfolded";
-        return eventName;
-    }
-
-    getMainDisplayTime(result, eventId, format) {
-        var useBest = false;
-        const bestOfFormats = ['1', '2', '3'];
-        if (bestOfFormats.includes(format)) {
-            useBest = true;
-        }
-
-        var timeValue = useBest ? result.best : result.average;
-
-        // Special handling for 333fm (Fewest Moves)
-        if (eventId === '333fm') {
-            timeValue = useBest ? timeValue : timeValue / 100;
-        }
-
-        return this.formatTime(timeValue, eventId);
-    }
-
-    formatTime(value, eventId) {
-        if (!value || value <= 0) {
-            if (value === -1) return 'DNF';
-            if (value === -2) return 'DNS';
-            return '';
-        }
-
-        if (eventId === "333mbf") {
-            const str = value.toString().padStart(10, '0');
-            const dd = parseInt(str.substring(1, 3));
-            const ttttt = parseInt(str.substring(3, 8));
-            const mm = parseInt(str.substring(8, 10));
-
-            const difference = 99 - dd;
-            const missed = mm;
-            const solved = difference + missed;
-            const attempted = solved + missed;
-
-            let timeStr = "";
-            if (ttttt === 99999) {
-                timeStr = "??:??";
-            } else {
-                const mins = Math.floor(ttttt / 60);
-                const secs = ttttt % 60;
-                timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
-            }
-            return `${solved}/${attempted} ${timeStr}`;
-        }
-
-        if (eventId === '333fm') {
-            return value.toFixed(2);
-        }
-
-        const seconds = value / 100;
-
-        if (seconds >= 60) {
-            const minutes = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${minutes}:${secs.toFixed(2).padStart(5, '0')}`;
-        }
-
-        return seconds.toFixed(2);
     }
 }
 

@@ -1,0 +1,264 @@
+﻿@font-face {
+    font-family: 'Sour Gummy';
+    src: url('/fonts/sour_gummy/SourGummy-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Inglobal';
+    src: url('/fonts/inglobal/inglobal.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Linux Biolinum';
+    src: url('/fonts/linux_biolinum/LinBiolinum_R.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --primary: #4DD84B;
+    --primary-dark: #47c443;
+    --secondary: #7f6bff;
+    --secondary-dark: #6c66bf;
+    --accent: #ff7438;
+    --text-light: #ffffff;
+    --bg-dark: #0f1419;
+    --bg-card: #1a1f2e;
+    --chroma: transparent;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scrollbar-gutter: stable;
+}
+
+body {
+    background-color: var(--chroma);
+    font-family: 'Linux Biolinum', sans-serif;
+    padding: 50px;
+    overflow: auto;
+}
+
+.container {
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Shared Header */
+.header-content {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: stretch;
+    margin-bottom: 20px;
+    justify-content: flex-start;
+}
+
+.cubing-icon {
+    line-height: 1;
+    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-icon {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+    padding: 20px;
+    width: 160px;
+    height: 160px;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.event-svg {
+    width: 80%;
+    height: 80%;
+    filter: brightness(0) invert(1);
+    object-fit: contain;
+}
+
+.competition-title {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+    font-family: 'Sour Gummy', sans-serif;
+    padding: 20px 40px; /* Reduced vertical padding slightly since text is taller now */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+}
+
+    .competition-title h1 {
+        font-size: 56px; /* Slightly smaller to ensure fit */
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 0; /* Remove margin to pull subtitle closer */
+        color: var(--text-light);
+        line-height: 1.1;
+    }
+
+    .competition-title h2 {
+        font-family: 'Inglobal', sans-serif;
+        font-size: 46px; /* Distinctly smaller than h1 */
+        font-weight: 400; /* Lighter weight for contrast */
+        letter-spacing: 1px;
+        margin-top: 5px;
+        color: var(--text-light);
+    }
+
+.rankings-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 12px;
+    gap: 12px;
+}
+
+.ranking-pill {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: opacity 0.3s;
+}
+
+.ranking-position {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.ranking-competitor {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    display: flex;
+    align-items: center;
+    height: 70px;
+    padding: 0 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    flex: 1;
+    overflow: hidden;
+}
+
+.ranking-left {
+    flex: 0 0 40%;
+    max-width: 40%;
+    display: flex;
+    align-items: center;
+    padding-right: 20px;
+}
+
+.flag-wrapper {
+    width: 50px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+    .flag-wrapper img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+.ranking-competitor-name {
+    color: white;
+    font-size: 32px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.avg-cell {
+    font-size: 34px;
+    font-weight: 900;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: white;
+    padding-left: 15px;
+    white-space: nowrap;
+    min-width: 130px;
+}
+
+.flag-error {
+    background: white;
+    width: 100%;
+    height: 100%;
+}
+
+/* Animations */
+.animate-enter {
+    opacity: 0;
+    transform: translateX(-50px);
+    animation: slideInLeft 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.ranking-stats-grid {
+    flex: 1; /* Takes the remaining space */
+    display: grid;
+    /* Uses the variable from JS to set number of columns + 1 for average */
+    grid-template-columns: repeat(var(--attempt-count, 5), 1fr) max-content;
+    align-items: center;
+    height: 100%;
+}
+
+.att-cell {
+    display: flex;
+    justify-content: center; /* Horizontally centered */
+    align-items: center; /* Vertically centered */
+    font-size: 32px;
+    color: rgba(255, 255, 255, 0.9);
+    font-variant-numeric: tabular-nums;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    height: 40%; /* Makes the vertical divider look like a clean table cell */
+}
+
+/* Animations */
+.animate-enter {
+    opacity: 0;
+    transform: translateX(-50px);
+    animation: slideInLeft 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes slideInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+

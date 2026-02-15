@@ -91,20 +91,26 @@ public static class CompetitionService
 
         const double myBestIfZero = 0.00;
 
-        var betterCount = allCompetitors.Count(opp =>
+        var uniqueCompetitors = allCompetitors
+            .Where(c => c.WcaId != currentId && c.Stats.Average != null)
+            .Select(c => new
+            {
+                Average = c.Stats.Average == -1 ? double.PositiveInfinity : c.Stats.Average!.Value,
+                Best = GetBestSingle(c.Solves) ?? double.PositiveInfinity
+            })
+            .Distinct()
+            .ToList();
+
+        var myAvg = targetBPA == -1 ? double.PositiveInfinity : targetBPA.Value;
+
+        var betterCount = uniqueCompetitors.Count(opp =>
         {
-            if (opp.WcaId == currentId || opp.Stats.Average == null)
-                return false;
-
-            var oppAvg = opp.Stats.Average == -1 ? double.PositiveInfinity : opp.Stats.Average.Value;
-            var myAvg = targetBPA == -1 ? double.PositiveInfinity : targetBPA.Value;
-
-            if (oppAvg < myAvg)
+            if (opp.Average < myAvg)
                 return true;
 
-            if (Math.Abs(oppAvg - myAvg) < 0.0001)
+            if (Math.Abs(opp.Average - myAvg) < 0.0001)
             {
-                if (GetBestSingle(opp.Solves) < myBestIfZero)
+                if (opp.Best < myBestIfZero)
                     return true;
             }
 
@@ -130,21 +136,26 @@ public static class CompetitionService
     {
         if (targetWPA == null) return null;
 
-        var betterCount = allCompetitors.Count(opp =>
+        var uniqueCompetitors = allCompetitors
+            .Where(c => c.WcaId != currentId && c.Stats.Average != null)
+            .Select(c => new
+            {
+                Average = c.Stats.Average == -1 ? double.PositiveInfinity : c.Stats.Average!.Value,
+                Best = GetBestSingle(c.Solves) ?? double.PositiveInfinity
+            })
+            .Distinct()
+            .ToList();
+
+        var myAvg = targetWPA == -1 ? double.PositiveInfinity : targetWPA.Value;
+
+        var betterCount = uniqueCompetitors.Count(opp =>
         {
-            if (opp.WcaId == currentId || opp.Stats.Average == null)
-                return false;
-
-            var oppAvg = opp.Stats.Average == -1 ? double.PositiveInfinity : opp.Stats.Average.Value;
-            var myAvg = targetWPA == -1 ? double.PositiveInfinity : targetWPA.Value;
-
-            if (oppAvg < myAvg)
+            if (opp.Average < myAvg)
                 return true;
 
-            if (Math.Abs(oppAvg - myAvg) < 0.0001)
+            if (Math.Abs(opp.Average - myAvg) < 0.0001)
             {
-                var me = allCompetitors.FirstOrDefault(c => c.WcaId == currentId);
-                if (me != null && GetBestSingle(opp.Solves) < GetBestSingle(me.Solves))
+                if (opp.Best == double.PositiveInfinity)
                     return true;
             }
 

@@ -121,7 +121,7 @@ function renderNeededFor(root, stats) {
 
     container.classList.remove("hidden-stat");
     label.textContent = labelText;
-    valueBox.textContent = val.toFixed(2);
+    valueBox.textContent = val === -1 ? "Any" : val.toFixed(2);
 
     const color = isPodium ? "#cd7f32" : ""; // Bronze vs Default (Gold)
     label.style.backgroundColor = color;

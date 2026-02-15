@@ -1,18 +1,27 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title></title>
-
-    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
-    <script type="module" src="/js/overlay-leaderboard.js"></script>
+    <link rel="stylesheet" href="/css/overlay-base.css" />
     <link rel="stylesheet" href="/css/overlay-leaderboard.css" />
 </head>
 <body>
-    <div id="leaderboard-container">
-        <h1 class="leaderboard-title">Current Standings</h1>
-        <div id="leaderboard-list">
-        </div>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="event-icon">
+                    <img src="/icons/333.svg" class="event-svg" id="event-icon">
+                </div>
+                <div class="competition-title">
+                    <h1 id="competition-name">---</h1>
+                    <h2 id="event-round-info">3x3x3 Cube - Final</h2>
+                </div>
+            </div>
+        </header>
+
+        <div id="rankings-list" class="rankings-list"></div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script type="module" src="/js/overlay-leaderboard.js"></script>
 </body>
 </html>
