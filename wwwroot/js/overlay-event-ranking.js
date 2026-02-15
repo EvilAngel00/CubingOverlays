@@ -7,6 +7,12 @@ class EventRankingOverlay extends OverlayCore {
 
         this.paginationTimer = null;
         this.currentIndex = 0;
+
+        this.isCondensed = new URLSearchParams(window.location.search).has('condensed');
+
+        if (this.isCondensed) {
+            document.body.classList.add('mode-condensed');
+        }
     }
 
     async init() {
@@ -106,13 +112,15 @@ class EventRankingOverlay extends OverlayCore {
         const subTitleEl = document.getElementById('event-round-info');
 
         if (compTitleEl) compTitleEl.textContent = competitionName;
-        if (subTitleEl) subTitleEl.textContent = `${eventLabel} - ${roundLabel}`;
+        if (subTitleEl) subTitleEl.innerHTML = this.isCondensed ? `${eventLabel}<br>${roundLabel}` : `${eventLabel} - ${roundLabel}`;
 
-        this.maxAttemptCount = Math.max(
-            ...this.currentRankings.results.map(r => r.attempts?.length || 0)
-        );
+        if (!this.isCondensed) {
+            this.maxAttemptCount = Math.max(
+                ...this.currentRankings.results.map(r => r.attempts?.length || 0)
+            );
 
-        document.getElementById('rankings-list').style.setProperty('--attempt-count', this.maxAttemptCount);
+            document.getElementById('rankings-list').style.setProperty('--attempt-count', this.maxAttemptCount);
+        }
     }
 
     nextPage() {
@@ -163,15 +171,18 @@ class EventRankingOverlay extends OverlayCore {
         const competitorName = result.person?.name || 'Unknown';
         const countryName = result.person?.country || '--';
 
-        const paddedAttempts = Array.from({ length: this.maxAttemptCount }, (_, i) => {
-            return (result.attempts && result.attempts[i] !== undefined) ? result.attempts[i] : 0;
-        });
+        let attemptsHTML = '';
+        if (!this.isCondensed) {
+            const paddedAttempts = Array.from({ length: this.maxAttemptCount }, (_, i) => {
+                return (result.attempts && result.attempts[i] !== undefined) ? result.attempts[i] : 0;
+            });
 
-        const attemptsHTML = paddedAttempts.map(attempt => `
-            <div class="att-cell">
-                <span>${this.formatTime(attempt, eventId)}</span>
-            </div>
-        `).join('');
+            attemptsHTML = paddedAttempts.map(attempt => `
+                <div class="att-cell">
+                    <span>${this.formatTime(attempt, eventId)}</span>
+                </div>
+            `).join('');
+        }
 
         return `
             <div class="ranking-pill animate-enter" style="opacity: 0">

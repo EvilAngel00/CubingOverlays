@@ -1,0 +1,60 @@
+/* --- Condensed Mode Overrides --- */
+body.mode-condensed .container {
+    max-width: 620px;
+}
+
+body.mode-condensed .competition-title {
+    max-height: 100px;
+}
+
+body.mode-condensed .competition-title h1 {
+    display: none;
+}
+
+body.mode-condensed .ranking-stats-grid {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 auto; /* DON'T grow, DON'T shrink, use natural width */
+    width: auto; /* Let content dictate size */
+    margin-left: 10px;
+}
+
+body.mode-condensed .att-cell {
+    display: none;
+}
+
+body.mode-condensed .ranking-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0; /* REQUIRED for ellipsis to work in flexbox */
+    max-width: none;
+}
+
+body.mode-condensed .ranking-competitor {
+    padding: 0 10px;
+}
+
+body.mode-condensed .ranking-competitor-name {
+    flex: 1; /* Let the name grow within ranking-left */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.mode-condensed .avg-cell {
+    font-size: 32px;
+    padding-left: 0px; 
+    min-width: max-content;
+    white-space: nowrap;
+}
+
+body.mode-condensed .event-icon {
+    width: 100px;
+    height: 100px;
+}
+
+body.mode-condensed .competition-title h2 {
+    font-size: 34px;
+}

@@ -2,30 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Event Rankings</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/overlay-base.css" />
-    <link rel="stylesheet" href="/css/overlay-event-ranking-small.css" />
+    <link rel="stylesheet" href="/css/overlay-h2h-ranking.css" />
 </head>
 <body>
     <div class="container">
         <header class="header">
             <div class="header-content">
                 <div class="event-icon">
-                    <div id="cubing-icon" class="cubing-icon"></div>
+                    <img src="/icons/333.svg" class="event-svg" id="event-icon">
                 </div>
                 <div class="competition-title">
                     <h1 id="competition-name">---</h1>
-                    <h2 id="event-round-info">---</h2>
+                    <h2 id="event-round-info">3x3x3 Cube - Final</h2>
                 </div>
             </div>
         </header>
 
         <div id="rankings-list" class="rankings-list"></div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flag-icons@6.9.0/css/flag-icons.min.css"></script>
-    <script type="module" src="/js/overlay-event-ranking.js"></script>
+    <script type="module" src="/js/overlay-h2h-ranking.js"></script>
 </body>
 </html>
