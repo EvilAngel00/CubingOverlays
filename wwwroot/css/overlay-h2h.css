@@ -1,7 +1,5 @@
 ﻿:root {
     /* Side Colors */
-    --color-left: #2675c3;
-    --color-right: #C0392B;
     --color-bpa: #27ae60;
     --color-wpa: #c0392b;
     --bg-solid-dark: #1a1a1a; /* Looks like 80% black */
@@ -12,12 +10,6 @@
     --color-text-dim: #7f8c8d; /* For empty boxes */
     /* Chroma Key Background */
     --chroma-key: transparent; /* Magenta */
-}
-
-body {
-    background-color: var(--chroma-key);
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    overflow-y: auto;
 }
 
 #container {
@@ -59,11 +51,10 @@ body {
     align-items: center;
     justify-content: center;
     background-color: var(--bg-solid-dark);
-    border: 2px solid var(--border-default);
+    border: 2px solid var(--accent);
     border-radius: 8px;
-    font-family: monospace;
     font-weight: bold;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     color: var(--color-text);
 }
 
@@ -140,7 +131,7 @@ body {
     text-transform: uppercase;
     text-align: center;
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 4px 4px 0px 0px;
     z-index: 2;
     letter-spacing: 1px;
 }
@@ -163,9 +154,8 @@ body {
 }
 
 .avg-value {
-    font-family: monospace;
     font-weight: bold;
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     color: white;
 }
 
@@ -180,7 +170,7 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 900;
-    font-size: 14px;
+    font-size: 16px;
     color: white;
     z-index: 1;
 }
@@ -199,13 +189,13 @@ body {
 
 /* Color coding to match the labels */
 #left .main-avg .rank-box {
-    border-color: var(--color-left);
-    color: var(--color-left);
+    border-color: var(--primary);
+    color: var(--primary);
 }
 
 #right .main-avg .rank-box {
-    border-color: var(--color-right);
-    color: var(--color-right);
+    border-color: var(--secondary);
+    color: var(--secondary);
 }
 
 .bpa .rank-box {
@@ -220,9 +210,13 @@ body {
 
 /* Make the Rank Box slightly smaller/subdued if it's BPA/WPA */
 .projections-group .rank-box {
-    font-size: 12px;
+    font-size: 14px;
     width: 35px;
     height: 35px;
+}
+
+.projections-group .avg-value {
+    font-size: 1.8rem;
 }
 
 .stats-area {
@@ -235,7 +229,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    margin-right: 4px;
 }
 
 .projections-group {
@@ -322,15 +315,13 @@ body {
 
 /* The 'S' and 'A' labels */
 .pb-lbl {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-weight: bold;
     color: var(--color-text-dim); /* Dimmed color so values pop */
-    font-family: 'Segoe UI', sans-serif;
 }
 
 /* The actual time values */
 .pb-val {
-    font-family: monospace;
     font-weight: bold;
     font-size: 1.1rem; /* Smaller than main avg (1.8rem) to fit */
     color: var(--color-text);
@@ -338,20 +329,20 @@ body {
 
 /* Color Coding */
 #left .main-avg .avg-label {
-    background-color: var(--color-left);
+    background-color: var(--primary);
 }
 
 #left .main-avg .avg-value-box {
-    border-color: var(--color-left);
+    border-color: var(--primary);
 }
 
 #right .main-avg .avg-label {
-    background-color: var(--color-right);
+    background-color: var(--secondary);
     
 }
 
 #right .main-avg .avg-value-box {
-    border-color: var(--color-right);
+    border-color: var(--secondary);
 }
 
 #left .bpa .avg-label, #right .bpa .avg-label {
@@ -371,17 +362,17 @@ body {
 }
 
 #left .pb-stats .avg-value-box {
-    border-color: var(--color-left);
+    border-color: var(--primary);
 }
 
 #left .pb-stats .avg-label {
-    background-color: var(--color-left);
+    background-color: var(--primary);
 }
 
 #right .pb-stats .avg-value-box {
-    border-color: var(--color-right);
+    border-color: var(--secondary);
 }
 
 #right .pb-stats .avg-label {
-    background-color: var(--color-right);
+    background-color: var(--secondary);
 }

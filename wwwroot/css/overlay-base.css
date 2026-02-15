@@ -20,14 +20,14 @@
 }
 
 :root {
-    --primary: #4DD84B;
-    --primary-dark: #47c443;
-    --secondary: #7f6bff;
-    --secondary-dark: #6c66bf;
-    --accent: #ff7438;
-    --text-light: #ffffff;
-    --bg-dark: #0f1419;
-    --bg-card: #1a1f2e;
+    --primary: rgba(77, 216, 75, 0.9);
+    --primary-dark: rgba(71, 196, 67, 0.9);
+    --secondary: rgba(127, 107, 255, 0.9);
+    --secondary-dark: rgba(108, 102, 191, 0.9);
+    --accent: rgba(255, 116, 56, 0.9);
+    --text-light: rgba(255, 255, 255, 0.9);
+    --bg-dark: rgba(15, 20, 25, 0.9);
+    --bg-card: rgba(26, 31, 46, 0.9);
     --chroma: transparent;
 }
 
@@ -170,6 +170,7 @@ body {
     display: flex;
     align-items: center;
     padding-right: 20px;
+    gap: 20px;
 }
 
 .flag-wrapper {
@@ -179,7 +180,6 @@ body {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-right: 15px;
 }
 
     .flag-wrapper img {

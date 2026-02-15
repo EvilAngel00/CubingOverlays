@@ -29,5 +29,6 @@
 .ranking-pill[data-tied="true"] .ranking-position {
     background: transparent;
     box-shadow: none;
+    color: transparent;
 }
 
