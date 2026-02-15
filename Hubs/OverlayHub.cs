@@ -8,6 +8,7 @@ public class OverlayHub : Hub
 {
     private readonly ICompetitionCacheService _cacheService;
     private static FilteredRankingResponse? LastSentRankings { get; set; }
+    private static Settings CurrentSettings { get; set; } = new();
 
     public OverlayHub(ICompetitionCacheService cacheService)
     {
@@ -61,9 +62,19 @@ public class OverlayHub : Hub
         return LastSentRankings;
     }
 
-    public async Task SetDisplaySettings()
+    public async Task UpdateDisplaySettings(Settings settings)
     {
+        CurrentSettings = settings;
+        // Broadcast to all connected overlays (and the settings page itself)
+        await Clients.All.SendAsync("SettingsUpdated", CurrentSettings);
+    }
 
+    public async Task<Settings> GetDisplaySettings() => CurrentSettings;
+
+    public async Task<Settings> ResetDisplaySettings() {
+        CurrentSettings = new();
+        await Clients.All.SendAsync("SettingsUpdated", CurrentSettings);
+        return CurrentSettings;
     }
 
     private static FilteredRankingResponse? FilterRankings(
@@ -151,8 +162,3 @@ public class OverlayHub : Hub
         return eventNames.TryGetValue(eventId, out var name) ? name : eventId;
     }
 }
-
-
-
-
-

@@ -19,6 +19,11 @@ class EventRankingOverlay {
             .withAutomaticReconnect()
             .build();
 
+        this.connection.on("SettingsUpdated", (settings) => {
+            console.log("Settings updated from server:", settings);
+            this.applySettings(settings);
+        });
+
         this.connection.on("RankingsReceived", (filteredRankings) => {
             console.log("Rankings received:", filteredRankings);
             this.currentRankings = filteredRankings;
@@ -32,9 +37,30 @@ class EventRankingOverlay {
         try {
             await this.connection.start();
             console.log("SignalR connected");
+
+            const settings = await this.connection.invoke("GetDisplaySettings");
+            this.applySettings(settings, false); // apply without restarting presentation yet
+
             await this.restoreLastRankings();
         } catch (err) {
             console.error("SignalR connection failed:", err);
+        }
+    }
+
+    applySettings(settings, restartIfActive = true) {
+        if (!settings || !settings.eventRanking) return;
+
+        const { pageDuration, pageSize } = settings.eventRanking;
+
+        // Convert seconds to milliseconds
+        this.loopDelay = pageDuration * 1000;
+        this.pageSize = pageSize;
+
+        console.log(`Applied Settings: Size=${this.pageSize}, Delay=${this.loopDelay}ms`);
+
+        // If we are currently showing rankings, restart the loop to apply new page size/speed
+        if (restartIfActive && this.currentRankings) {
+            this.startPresentation();
         }
     }
 
