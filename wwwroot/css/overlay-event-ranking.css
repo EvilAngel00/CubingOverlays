@@ -68,7 +68,7 @@ body {
 
 .competition-title {
     background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
-    padding: 30px 40px;
+    padding: 20px 40px; /* Reduced vertical padding slightly since text is taller now */
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);
     display: flex;
@@ -78,18 +78,20 @@ body {
 }
 
     .competition-title h1 {
-        font-size: 56px;
+        font-size: 48px; /* Slightly smaller to ensure fit */
         font-weight: bold;
-        letter-spacing: 3px;
-        margin-bottom: 8px;
+        letter-spacing: 2px;
+        margin-bottom: 0; /* Remove margin to pull subtitle closer */
         color: var(--text-light);
+        line-height: 1.1;
     }
 
-    .competition-title p {
-        font-size: 18px;
+    .competition-title h2 {
+        font-size: 32px; /* Distinctly smaller than h1 */
+        font-weight: 400; /* Lighter weight for contrast */
         letter-spacing: 1px;
-        color: rgba(255, 255, 255, 0.9);
-        text-transform: uppercase;
+        margin-top: 5px;
+        color: var(--text-light);
     }
 
 /* --- RANKING LIST STYLES --- */

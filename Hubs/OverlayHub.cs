@@ -61,7 +61,12 @@ public class OverlayHub : Hub
         return LastSentRankings;
     }
 
-    private FilteredRankingResponse? FilterRankings(
+    public async Task SetDisplaySettings()
+    {
+
+    }
+
+    private static FilteredRankingResponse? FilterRankings(
         WcaLiveCompetitionResponse competitionData,
         WcaWcifResponse? wcaWcifData,
         string eventId,
@@ -122,7 +127,7 @@ public class OverlayHub : Hub
         };
     }
 
-    private string GetEventName(string eventId)
+    private static string GetEventName(string eventId)
     {
         var eventNames = new Dictionary<string, string>
         {

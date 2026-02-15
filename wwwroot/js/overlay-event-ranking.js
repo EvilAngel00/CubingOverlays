@@ -85,17 +85,28 @@ class EventRankingOverlay {
         const eventId = this.currentRankings.eventId;
 
         iconContainer.innerHTML = `
-        <img src="icons/${eventId}.svg" 
-             class="event-svg" 
-             alt="${eventId}">`;
+            <img src="icons/${eventId}.svg" 
+                 class="event-svg" 
+                 alt="${eventId}">`;
 
+        // Get strings
         const eventLabel = this.getEventName(this.currentRankings.eventName);
-        const subtitleLabel = `${eventLabel} - Round ${this.currentRankings.roundNumber}`;
-        document.getElementById('competition-title').textContent = subtitleLabel;
+        const competitionName = this.currentRankings.competitionName || 'Competition Name';
+        const roundLabel = `Round ${this.currentRankings.roundNumber}`;
+
+        // Update the two separate lines
+        // Note: Make sure you updated the ID in HTML to 'competition-name' 
+        // If you kept it as 'competition-title', change the ID below.
+        const compTitleEl = document.getElementById('competition-name');
+        const subTitleEl = document.getElementById('event-round-info');
+
+        if (compTitleEl) compTitleEl.textContent = competitionName;
+        if (subTitleEl) subTitleEl.textContent = `${eventLabel} - ${roundLabel}`;
 
         this.maxAttemptCount = Math.max(
             ...this.currentRankings.results.map(r => r.attempts?.length || 0)
         );
+
         document.getElementById('rankings-list').style.setProperty('--attempt-count', this.maxAttemptCount);
     }
 
@@ -141,7 +152,8 @@ class EventRankingOverlay {
     }
 
     createRankingPill(result, eventId) {
-        const mainTime = this.getMainDisplayTime(result, eventId);
+        const format = this.currentRankings.format || '';
+        const mainTime = this.getMainDisplayTime(result, eventId, format);
         const flagCode = (result.person?.country || '--').toLowerCase();
         const competitorName = result.person?.name || 'Unknown';
         const countryName = result.person?.country || '--';
@@ -183,19 +195,21 @@ class EventRankingOverlay {
         return eventName;
     }
 
-    getMainDisplayTime(result, eventId) {
-        const blindfoldEvents = ['333bf', '444bf', '555bf', '333mbf'];
-        if (blindfoldEvents.includes(eventId)) {
-            return this.formatTime(result.best, eventId);
-        } else if (eventId === '333fm') {
-            if (!result.average || result.average <= 0) {
-                if (result.average === -1) return 'DNF';
-                if (result.average === -2) return 'DNS';
-                return '';
-            }
-            return (result.average / 100).toFixed(2);
+    getMainDisplayTime(result, eventId, format) {
+        var useBest = false;
+        const bestOfFormats = ['1', '2', '3'];
+        if (bestOfFormats.includes(format)) {
+            useBest = true;
         }
-        return this.formatTime(result.average, eventId);
+
+        var timeValue = useBest ? result.best : result.average;
+
+        // Special handling for 333fm (Fewest Moves)
+        if (eventId === '333fm') {
+            timeValue = useBest ? timeValue : timeValue / 100;
+        }
+
+        return this.formatTime(timeValue, eventId);
     }
 
     formatTime(value, eventId) {
@@ -227,8 +241,8 @@ class EventRankingOverlay {
             return `${solved}/${attempted} ${timeStr}`;
         }
 
-        if (eventId === "333fm") {
-            return value;
+        if (eventId === '333fm') {
+            return value.toFixed(2);
         }
 
         const seconds = value / 100;
