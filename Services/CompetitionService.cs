@@ -207,18 +207,18 @@ public static class CompetitionService
         var validCompetitors = allCompetitors
             .Where(c => c.WcaId != competitor.WcaId 
             && c.Stats.CurrentRank != null 
-            && c.Stats.CurrentRank == targetRank)
+            && c.Stats.CurrentRank <= targetRank)
             .ToList();
 
-        // If target rank is higher than total competitors, any time works
-        if (targetRank > validCompetitors.Count) return -1;
+        // If target rank is higher than the max rank, any time works
+        if (targetRank > validCompetitors.Select(c => c.Stats.CurrentRank).Max()) return -1;
 
         var targetCompetitor = validCompetitors[targetRank - 1];
         var lAvg = targetCompetitor.Stats.Average!.Value;
         var lBest = GetBestSingle(targetCompetitor.Solves);
 
         var sortedV = currentSolves.OrderBy(s => s).ToList();
-        double targetSum = Math.Round(lAvg * 3.0 * 100) / 100;
+        double targetSum = Math.Round((lAvg+0.004) * 3.0 * 100) / 100;
 
         bool CheckTime(double x)
         {
