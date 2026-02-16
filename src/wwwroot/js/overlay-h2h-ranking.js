@@ -63,15 +63,15 @@ class LeaderboardOverlay extends OverlayCore {
 
     createPill(c, index, ranked) {
         const flag = (c.country || '--').toLowerCase();
-        const displayAvg = this.formatTime(c.stats.average * 100, this.state.eventId);
+        const displayAvg = (c.stats.average === -1) ? "DNF" : c.stats.average.toFixed(2);
 
         const paddedAttempts = Array.from({ length: this.maxAttemptCount }, (_, i) => {
-            return (c.solves && c.solves[i] !== undefined) ? c.solves[i].time * 100 : 0;
+            return (c.solves && c.solves[i] !== undefined) ? (c.solves[i].penalty === 'dnf') ? "DNF" : c.solves[i].time.toFixed(2) : "";
         });
 
         const attemptsHTML = paddedAttempts.map(attempt => `
             <div class="att-cell">
-                <span>${this.formatTime(attempt, this.state.eventId)}</span>
+                <span>${attempt}</span>
             </div>
         `).join('');
 
