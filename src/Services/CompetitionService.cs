@@ -209,7 +209,7 @@ public static class CompetitionService
         return validTimes.Min();
     }
 
-    private static double? CalculateNeededForRank(Competitor competitor, List<Competitor> allCompetitors, int targetRank)
+    public static double? CalculateNeededForRank(Competitor competitor, List<Competitor> allCompetitors, int targetRank)
     {
         var currentSolves = GetExistingTimes(competitor.Solves);
 
@@ -219,8 +219,8 @@ public static class CompetitionService
             .Where(c => c.WcaId != competitor.WcaId 
             && c.Stats.CurrentRank != null 
             && c.Stats.CurrentRank <= targetRank)
+            .OrderBy(c => c.Stats.CurrentRank)
             .ToList();
-
 
         // If target rank is higher than the max rank, any time works
         if (targetRank > validCompetitors.Select(c => c.Stats.CurrentRank).Max()) return -1;
@@ -254,6 +254,9 @@ public static class CompetitionService
         if (!CheckTime(0.00)) return null; // Can't achieve that rank
 
         double xWin = targetSum - sortedV[1] - sortedV[2];
+
+        if (xWin < sortedV[0] && CheckTime(xWin))
+            return Math.Round(xWin * 100) / 100;
 
         // Tie-break Logic
         double myBestWithX = Math.Min(sortedV[0], xWin);
