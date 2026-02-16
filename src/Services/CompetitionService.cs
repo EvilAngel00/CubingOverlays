@@ -31,6 +31,7 @@ public static class CompetitionService
 
         var activeIds = new[] { state.Round.LeftCompetitorWcaId, state.Round.RightCompetitorWcaId };
 
+        // Calculate again for active competitors in case a time gets deleted
         foreach (var id in activeIds)
         {
             var comp = state.Competitors.FirstOrDefault(c => c.WcaId == id);

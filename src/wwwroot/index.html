@@ -131,7 +131,45 @@
                 </div>
             </div>
         </div>
-    </main>
+
+        <!-- Quick Overlay Access -->
+        <div class="card bg-base-100 shadow-xl border-t-4 border-accent">
+            <div class="card-body">
+                <div class="flex items-center gap-3 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4m-4-6l-4 4m0 0l-4-4m4 4V3" />
+                    </svg>
+                    <h2 class="card-title text-accent">Quick Overlay Access</h2>
+                </div>
+                <p class="text-sm opacity-70 mb-4">Open overlay displays in new tabs for broadcasting (right-click to copy link)</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <a href="/overlay-event-ranking.html" target="_blank" class="btn btn-outline btn-sm gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Event Ranking
+                    </a>
+                    <a href="/overlay-event-ranking.html?condensed" target="_blank" class="btn btn-outline btn-sm gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Event Ranking Condensed
+                    </a>
+                    <a href="/overlay-h2h.html" target="_blank" class="btn btn-outline btn-sm gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        H2H Live
+                    </a>
+                    <a href="/overlay-h2h-ranking.html" target="_blank" class="btn btn-outline btn-sm gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        H2H Ranking
+                    </a>
+                </div>
+            </div>
+        </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="/js/ranking-controller.js"></script>
