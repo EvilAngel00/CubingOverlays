@@ -112,53 +112,45 @@
         }
     }
 
-    async saveSettings() {
+    async saveAllSettings() {
+        // Validate event ranking settings
         const duration = parseInt(this.inputs.loopDuration.value);
         const size = parseInt(this.inputs.pageSize.value);
 
         if (isNaN(duration) || duration < 1 || isNaN(size) || size < 1) {
-            alert("Please enter valid positive numbers.");
+            alert("Please enter valid positive numbers for Event Ranking settings.");
             return;
         }
 
-        const settingsPayload = {
-            eventRanking: {
-                pageDuration: duration,
-                pageSize: size
-            }
-        };
-
-        try {
-            await this.connection.invoke("UpdateDisplaySettings", settingsPayload);
-            this.showToast("Settings sent to server!");
-        } catch (err) {
-            console.error("Error saving settings:", err);
-            alert("Failed to save settings to server.");
-        }
-    }
-
-    async saveH2HSettings() {
+        // Validate H2H color settings
         const leftColor = this.inputs.leftPlayerColor.value;
         const rightColor = this.inputs.rightPlayerColor.value;
 
         if (!this.isValidHexColor(leftColor) || !this.isValidHexColor(rightColor)) {
-            alert("Please enter valid hex colors.");
+            alert("Please enter valid hex colors for Head-to-Head settings.");
             return;
         }
 
+        // Build complete settings object
         const settingsPayload = {
+            eventRanking: {
+                pageDuration: duration,
+                pageSize: size
+            },
             headToHead: {
                 leftPlayerColor: leftColor,
                 rightPlayerColor: rightColor
             }
         };
 
+        console.log("Saving all settings:", settingsPayload);
+
         try {
             await this.connection.invoke("UpdateDisplaySettings", settingsPayload);
-            this.showToast("H2H settings saved successfully!");
+            this.showToast("All settings saved successfully!");
         } catch (err) {
-            console.error("Error saving H2H settings:", err);
-            alert("Failed to save H2H settings to server.");
+            console.error("Error saving settings:", err);
+            alert("Failed to save settings to server.");
         }
     }
 
@@ -177,6 +169,5 @@
 const controller = new SettingsController();
 document.addEventListener('DOMContentLoaded', () => controller.init());
 
-window.saveSettings = () => controller.saveSettings();
-window.saveH2HSettings = () => controller.saveH2HSettings();
+window.saveAllSettings = () => controller.saveAllSettings();
 window.resetDefaults = () => controller.resetDefaults();
