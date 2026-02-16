@@ -1,8 +1,10 @@
-﻿import { getBestSolve, getOrdinal, formatSolve } from './utils.js';
+﻿import { getOrdinal, formatSolve } from './utils.js';
 
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/overlayHub")
     .build();
+
+var settings = null;
 
 connection.on("StateUpdated", state => {
     console.log("StateUpdated");
@@ -11,17 +13,55 @@ connection.on("StateUpdated", state => {
     renderSide("right", state.round.rightCompetitorWcaId, state);
 });
 
+connection.on("SettingsUpdated", (updatedSettings) => {
+    console.log("Settings updated from server:", updatedSettings);
+    applySettings(updatedSettings);
+});
+
 async function start() {
     console.log("Start");
     await connection.start();
     const res = await fetch("/api/state");
     const state = await res.json();
     console.log("State", state);
+
+    const settings = await connection.invoke("GetDisplaySettings");
+    applySettings(settings);
+
     renderSide("left", state.round.leftCompetitorWcaId, state);
     renderSide("right", state.round.rightCompetitorWcaId, state);
 }
 
 start();
+
+function applySettings(updatedSettings, updateUI = true) {
+    if (!updatedSettings || !updatedSettings.headToHead) return;
+
+    settings = updatedSettings;
+
+    if (updateUI) {
+        applyPlayerColors();
+    }
+}
+
+function applyPlayerColors() {
+    if (!settings || !settings.headToHead) return;
+
+    const { leftPlayerColor, rightPlayerColor } = settings.headToHead;
+
+    const leftName = document.querySelector("#left .name");
+    const rightName = document.querySelector("#right .name");
+
+    if (leftName && leftPlayerColor) {
+        leftName.style.color = leftPlayerColor;
+    }
+
+    if (rightName && rightPlayerColor) {
+        rightName.style.color = rightPlayerColor;
+    }
+
+    console.log(`Applied H2H Settings: Left=${leftPlayerColor}, Right=${rightPlayerColor}`);
+}
 
 function renderSide(side, competitorId, state) {
     const root = document.getElementById(side);
