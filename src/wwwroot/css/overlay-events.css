@@ -1,0 +1,68 @@
+﻿/* Styles for the Event Display Overlay 
+   Inherits Fonts and Variables from overlay-base.css 
+*/
+
+.event-row {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 40px;
+    color: var(--slot-text-color, black);
+}
+
+.event-logo-container {
+    width: 110px;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+    .event-logo-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        color: var(--slot-text-color, black);
+    }
+
+.event-icon-mask {
+    width: 100%;
+    height: 100%;
+    background-color: var(--slot-text-color, black);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+}
+
+.event-info-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.event-full-name {
+    font-family: 'Inglobal', sans-serif;
+    font-size: 58px;
+    line-height: 1;
+    margin: 0;
+    text-transform: capitalize;
+    color: var(--slot-text-color, black);
+}
+
+.event-round-label {
+    font-family: 'Inglobal', sans-serif;
+    font-size: 42px;
+    margin-top: 5px;
+    color: var(--slot-text-color, black);
+    line-height: 1;
+}
+
+/* Utility to hide inactive slots */
+.hidden {
+    visibility: hidden !important;
+    opacity: 0;
+}

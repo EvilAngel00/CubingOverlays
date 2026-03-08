@@ -245,6 +245,3 @@ document.getElementById('competition_id_input').addEventListener('keypress', (e)
         rankingController.fetchCompetitionData();
     }
 });
-
-
-

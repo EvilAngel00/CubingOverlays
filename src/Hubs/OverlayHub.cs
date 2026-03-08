@@ -8,6 +8,7 @@ public class OverlayHub : Hub
 {
     private readonly ICompetitionCacheService _cacheService;
     private static FilteredRankingResponse? LastSentRankings { get; set; }
+    private static EventDisplayState CurrentEventDisplays { get; set; } = new();
     private static Settings CurrentSettings { get; set; } = new();
 
     public OverlayHub(ICompetitionCacheService cacheService)
@@ -60,6 +61,22 @@ public class OverlayHub : Hub
 
         Console.WriteLine($"Returning cached rankings for {LastSentRankings.EventName} Round {LastSentRankings.RoundNumber}");
         return LastSentRankings;
+    }
+
+    public async Task UpdateEventDisplays(EventDisplayState newState)
+    {
+        CurrentEventDisplays = newState;
+
+        Console.WriteLine($"Event Displays updated: Primary={newState.Primary.Event}, Secondary={newState.Secondary.Event}");
+
+        // Broadcast the new state to all connected clients (overlays)
+        await Clients.All.SendAsync("EventDisplaysUpdated", CurrentEventDisplays);
+    }
+
+    // Method for new overlays to call when they first load
+    public async Task<EventDisplayState> GetEventDisplays()
+    {
+        return CurrentEventDisplays;
     }
 
     public async Task UpdateDisplaySettings(Settings settings)

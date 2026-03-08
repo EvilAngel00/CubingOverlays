@@ -121,6 +121,39 @@
                 </div>
             </div>
 
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-accent mb-4 border-b border-base-300 pb-2">
+                        Event List Colors
+                    </h2>
+                    <form id="eventDisplaySettingsForm" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text font-medium">Primary Section</span></label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" id="primaryColor" class="h-12 w-20 cursor-pointer rounded border border-base-300" value="#4DD84B" />
+                                <input type="text" id="primaryColorText" class="input input-bordered input-accent flex-1" placeholder="#4DD84B" />
+                            </div>
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label"><span class="label-text font-medium">Secondary Section</span></label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" id="secondaryColor" class="h-12 w-20 cursor-pointer rounded border border-base-300" value="#4DD84B" />
+                                <input type="text" id="secondaryColorText" class="input input-bordered input-accent flex-1" placeholder="#4DD84B" />
+                            </div>
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label"><span class="label-text font-medium">Tertiary Section</span></label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" id="tertiaryColor" class="h-12 w-20 cursor-pointer rounded border border-base-300" value="#4DD84B" />
+                                <input type="text" id="tertiaryColorText" class="input input-bordered input-accent flex-1" placeholder="#4DD84B" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="flex justify-end pt-4">
                 <button type="button" onclick="saveAllSettings()" class="btn btn-accent px-8 text-white font-semibold">
                     Save All Changes

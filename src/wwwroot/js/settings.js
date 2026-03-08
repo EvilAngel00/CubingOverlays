@@ -7,7 +7,13 @@
             leftPlayerColor: document.getElementById('leftPlayerColor'),
             leftPlayerColorText: document.getElementById('leftPlayerColorText'),
             rightPlayerColor: document.getElementById('rightPlayerColor'),
-            rightPlayerColorText: document.getElementById('rightPlayerColorText')
+            rightPlayerColorText: document.getElementById('rightPlayerColorText'),
+            primaryColor: document.getElementById('primaryColor'),
+            primaryColorText: document.getElementById('primaryColorText'),
+            secondaryColor: document.getElementById('secondaryColor'),
+            secondaryColorText: document.getElementById('secondaryColorText'),
+            tertiaryColor: document.getElementById('tertiaryColor'),
+            tertiaryColorText: document.getElementById('tertiaryColorText')
         };
     }
 
@@ -36,6 +42,7 @@
     setupColorSync() {
         // Left player color sync
         this.inputs.leftPlayerColor.addEventListener('input', (e) => {
+            console.log("color changed");
             this.inputs.leftPlayerColorText.value = e.target.value;
         });
 
@@ -54,6 +61,17 @@
             if (this.isValidHexColor(e.target.value)) {
                 this.inputs.rightPlayerColor.value = e.target.value;
             }
+        });
+
+        this.setupSyncPair(this.inputs.primaryColor, this.inputs.primaryColorText);
+        this.setupSyncPair(this.inputs.secondaryColor, this.inputs.secondaryColorText);
+        this.setupSyncPair(this.inputs.tertiaryColor, this.inputs.tertiaryColorText);
+    }
+
+    setupSyncPair(picker, text) {
+        picker.addEventListener('input', (e) => text.value = e.target.value.toUpperCase());
+        text.addEventListener('input', (e) => {
+            if (this.isValidHexColor(e.target.value)) picker.value = e.target.value;
         });
     }
 
@@ -78,6 +96,18 @@
                 this.inputs.rightPlayerColorText.value = this.inputs.rightPlayerColor.value;
             }
         }
+
+        if (settings && settings.eventDisplay) {
+            this.updateColorFields('primaryColor', settings.eventDisplay.primaryColor);
+            this.updateColorFields('secondaryColor', settings.eventDisplay.secondaryColor);
+            this.updateColorFields('tertiaryColor', settings.eventDisplay.tertiaryColor);
+        }
+    }
+
+    updateColorFields(idPrefix, color) {
+        const hex = this.colorToHex(color);
+        this.inputs[idPrefix].value = hex;
+        this.inputs[idPrefix + 'Text'].value = hex;
     }
 
     colorToHex(color) {
@@ -140,6 +170,11 @@
             headToHead: {
                 leftPlayerColor: leftColor,
                 rightPlayerColor: rightColor
+            },
+            eventDisplay: {
+                primaryColor: this.inputs.primaryColor.value,
+                secondaryColor: this.inputs.secondaryColor.value,
+                tertiaryColor: this.inputs.tertiaryColor.value
             }
         };
 
