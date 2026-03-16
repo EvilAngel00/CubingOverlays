@@ -92,7 +92,7 @@ class EventsOverlay extends OverlayCore {
 
         // Update Text Content
         nameEl.textContent = this.eventMap[data.event] || data.event;
-        roundEl.textContent = data.round ? `Round ${data.round}` : "";
+        roundEl.textContent = data.round && data.round === 'final' ? 'Final' : data.round  ? `Round ${data.round}` : "";
 
         // Update Logo using a Mask instead of a direct <img>
         const iconPath = `icons/${data.event}.svg`;
