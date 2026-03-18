@@ -52,6 +52,7 @@
         this.tiers.forEach(tier => {
             const eventSelect = document.getElementById(`event_${tier}`);
             const roundSelect = document.getElementById(`round_${tier}`);
+            const groupSelect = document.getElementById(`group_${tier}`);
 
             this.eventsList.forEach(ev => {
                 const option = document.createElement('option');
@@ -66,6 +67,14 @@
                 option.textContent = ro.name;
                 roundSelect.appendChild(option);
             });
+
+            // Populate groups 1-30
+            for (let i = 1; i <= 30; i++) {
+                const option = document.createElement('option');
+                option.value = i.toString();
+                option.textContent = `Group ${i}`;
+                groupSelect.appendChild(option);
+            }
         });
     }
 
@@ -73,6 +82,7 @@
         // Resets the dropdowns to the default empty option
         document.getElementById(`event_${tier}`).value = '';
         document.getElementById(`round_${tier}`).value = '';
+        document.getElementById(`group_${tier}`).value = '';
     }
 
     async submitState() {
@@ -80,9 +90,11 @@
         const payload = {};
 
         this.tiers.forEach(tier => {
+            const groupValue = document.getElementById(`group_${tier}`).value;
             payload[tier] = {
                 event: document.getElementById(`event_${tier}`).value,
-                round: document.getElementById(`round_${tier}`).value
+                round: document.getElementById(`round_${tier}`).value,
+                group: groupValue ? parseInt(groupValue) : null
             };
         });
 

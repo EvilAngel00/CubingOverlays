@@ -2,11 +2,16 @@
    Inherits Fonts and Variables from overlay-base.css 
 */
 
+.event-slot {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 40px;
+}
+
 .event-row {
     display: flex;
     align-items: center;
     gap: 25px;
-    margin-bottom: 40px;
     color: var(--slot-text-color, black);
 }
 
@@ -59,6 +64,17 @@
     margin-top: 5px;
     color: var(--slot-text-color, black);
     line-height: 1;
+    height: 52px;
+}
+
+.event-group-label {
+    font-family: 'Inglobal', sans-serif;
+    font-size: 58px;
+    margin-top: 0px;
+    color: var(--slot-text-color, black);
+    line-height: 1;
+    height: 52px;
+    margin-left: 135px;
 }
 
 /* Utility to hide inactive slots */

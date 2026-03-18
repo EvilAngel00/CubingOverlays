@@ -88,11 +88,25 @@ class EventsOverlay extends OverlayCore {
 
         const nameEl = row.querySelector('.event-full-name');
         const roundEl = row.querySelector('.event-round-label');
+        const groupEl = row.querySelector('.event-group-label');
         const logoContainer = row.querySelector('.event-logo-container');
 
         // Update Text Content
         nameEl.textContent = this.eventMap[data.event] || data.event;
-        roundEl.textContent = data.round && data.round === 'final' ? 'Final' : data.round  ? `Round ${data.round}` : "";
+
+        // Update round label
+        if (data.round) {
+            roundEl.textContent = data.round === 'final' ? 'Final' : `Round ${data.round}`;
+        } else {
+            roundEl.textContent = '';
+        }
+
+        // Update group label
+        if (data.group) {
+            groupEl.textContent = `Group ${data.group}`;
+        } else {
+            groupEl.textContent = '';
+        }
 
         // Update Logo using a Mask instead of a direct <img>
         const iconPath = `icons/${data.event}.svg`;

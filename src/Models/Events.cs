@@ -11,4 +11,5 @@ public class DisplaySelection
 {
     public string Event { get; set; } = string.Empty;
     public string Round { get; set; } = string.Empty;
+    public int? Group { get; set; }
 }
