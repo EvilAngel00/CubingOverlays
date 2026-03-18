@@ -78,44 +78,54 @@ class EventsOverlay extends OverlayCore {
     }
 
     renderSlot(elementId, data) {
-        const row = document.getElementById(elementId);
-        const hasData = data && data.event && data.event.trim() !== "";
+        const slot = document.getElementById(elementId);
+        const hasEvent = data && data.event && data.event.trim() !== "";
+        const hasGroup = data && data.group;
 
-        if (!hasData) {
-            row.classList.add('hidden');
+        // Show slot if there's either an event or a group
+        if (!hasEvent && !hasGroup) {
+            slot.classList.add('hidden');
             return;
         }
 
-        const nameEl = row.querySelector('.event-full-name');
-        const roundEl = row.querySelector('.event-round-label');
-        const groupEl = row.querySelector('.event-group-label');
-        const logoContainer = row.querySelector('.event-logo-container');
+        const eventRow = slot.querySelector('.event-row');
+        const nameEl = slot.querySelector('.event-full-name');
+        const roundEl = slot.querySelector('.event-round-label');
+        const groupEl = slot.querySelector('.event-group-label');
+        const logoContainer = slot.querySelector('.event-logo-container');
 
-        // Update Text Content
-        nameEl.textContent = this.eventMap[data.event] || data.event;
+        // Handle event row visibility and content
+        if (hasEvent) {
+            eventRow.style.visibility = 'visible';
 
-        // Update round label
-        if (data.round) {
-            roundEl.textContent = data.round === 'final' ? 'Final' : `Round ${data.round}`;
+            // Update Text Content
+            nameEl.textContent = this.eventMap[data.event] || data.event;
+
+            // Update round label
+            if (data.round) {
+                roundEl.textContent = data.round === 'final' ? 'Final' : `Round ${data.round}`;
+            } else {
+                roundEl.textContent = '';
+            }
+
+            // Update Logo using a Mask instead of a direct <img>
+            const iconPath = `icons/${data.event}.svg`;
+            logoContainer.innerHTML = `
+            <div class="event-icon-mask" 
+                 style="mask-image: url('${iconPath}'); -webkit-mask-image: url('${iconPath}');">
+            </div>`;
         } else {
-            roundEl.textContent = '';
+            eventRow.style.visibility = 'hidden';
         }
 
-        // Update group label
-        if (data.group) {
-            groupEl.textContent = `Group ${data.group}`;
+        // Update group label - always show if present
+        if (hasGroup) {
+            groupEl.textContent = `Groupe ${data.group}`;
         } else {
             groupEl.textContent = '';
         }
 
-        // Update Logo using a Mask instead of a direct <img>
-        const iconPath = `icons/${data.event}.svg`;
-        logoContainer.innerHTML = `
-        <div class="event-icon-mask" 
-             style="mask-image: url('${iconPath}'); -webkit-mask-image: url('${iconPath}');">
-        </div>`;
-
-        row.classList.remove('hidden');
+        slot.classList.remove('hidden');
     }
 }
 
