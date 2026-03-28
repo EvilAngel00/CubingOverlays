@@ -22,7 +22,7 @@ public class HeadToHeadSettings
 
 public class EventDisplaySettings
 {
-    public string PrimaryColor { get; set; } = "#000000"; // Black
-    public string SecondaryColor { get; set; } = "#000000"; // Black
-    public string TertiaryColor { get; set; } = "#000000"; // Black
+    public string PrimaryColor { get; set; } = "#FFFFFF"; // White
+    public string SecondaryColor { get; set; } = "#FFFFFF"; // White
+    public string TertiaryColor { get; set; } = "#FFFFFF"; // White
 }

@@ -50,7 +50,7 @@
 }
 
 .event-full-name {
-    font-family: 'Inglobal', sans-serif;
+    font-family: 'Sour Gummy', sans-serif;
     font-size: 58px;
     line-height: 1;
     margin: 0;
@@ -59,7 +59,7 @@
 }
 
 .event-round-label {
-    font-family: 'Inglobal', sans-serif;
+    font-family: 'Sour Gummy', sans-serif;
     font-size: 58px;
     margin-top: 15px;
     color: var(--slot-text-color, black);
@@ -68,7 +68,7 @@
 }
 
 .event-group-label {
-    font-family: 'Inglobal', sans-serif;
+    font-family: 'Sour Gummy', sans-serif;
     font-size: 58px;
     margin-top: 15px;
     color: var(--slot-text-color, black);

@@ -103,7 +103,7 @@ class EventsOverlay extends OverlayCore {
 
             // Update round label
             if (data.round) {
-                roundEl.textContent = data.round === 'final' ? 'Final' : `Round ${data.round}`;
+                roundEl.textContent = data.round === 'final' ? 'Finale' : `Round ${data.round}`;
             } else {
                 roundEl.textContent = '';
             }
