@@ -17,6 +17,7 @@ public static class Endpoints
         api.MapPost("/updateState", UpdateState);
         api.MapPost("/addCompetitor", AddCompetitor);
         api.MapDelete("/competitor/{wcaId}", DeleteCompetitor);
+        api.MapPost("/importState", ImportState);
         api.MapGet("/rankings/{competitionId}", GetRankings);
 
         return app;
@@ -39,38 +40,7 @@ public static class Endpoints
         }
         else
         {
-            try
-            {
-                var client = httpClientFactory.CreateClient();
-                var response = await client.GetAsync($"https://www.worldcubeassociation.org/api/v0/persons/{competitor.WcaId.ToUpper()}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var wcaData = await response.Content.ReadFromJsonAsync<WcaPersonResponse>();
-                    if (wcaData?.Person != null)
-                    {
-                        competitor.Name = wcaData.Person.Name;
-                        competitor.Country = wcaData.Person.CountryIso2;
-
-                        if (wcaData.PersonalRecords != null &&
-                            wcaData.PersonalRecords.TryGetValue("333", out var records))
-                        {
-                            // Convert centiseconds to seconds
-                            var singlePB = records.Single?.Best / 100.0 ?? 0;
-                            var averagePB = records.Average?.Best / 100.0 ?? 0;
-
-                            competitor.Stats.PersonalBestSingle = singlePB;
-                            competitor.Stats.PersonalBestAverage = averagePB;
-
-                            Console.WriteLine($"Fetched {competitor.Name}: Single {singlePB}s, Avg {averagePB}s");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"WCA API Error: {ex.Message}");
-            }
+            competitor = await GetCompetitorWCAInfo(competitor, httpClientFactory);
 
             state.Competitors.Add(competitor);
             if (state.Round.LeftGroupWcaIds.Count <= state.Round.RightGroupWcaIds.Count)
@@ -81,6 +51,43 @@ public static class Endpoints
 
         await NotifyStateUpdated(state, hub);
         return Results.Ok(state);
+    }
+
+    private static async Task<Competitor> GetCompetitorWCAInfo(Competitor competitor, IHttpClientFactory httpClientFactory)
+    {
+        try
+        {
+            var client = httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"https://www.worldcubeassociation.org/api/v0/persons/{competitor.WcaId.ToUpper()}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var wcaData = await response.Content.ReadFromJsonAsync<WcaPersonResponse>();
+                if (wcaData?.Person != null)
+                {
+                    competitor.Name = wcaData.Person.Name;
+                    competitor.Country = wcaData.Person.CountryIso2;
+
+                    if (wcaData.PersonalRecords != null &&
+                        wcaData.PersonalRecords.TryGetValue("333", out var records))
+                    {
+                        // Convert centiseconds to seconds
+                        var singlePB = records.Single?.Best / 100.0 ?? 0;
+                        var averagePB = records.Average?.Best / 100.0 ?? 0;
+
+                        competitor.Stats.PersonalBestSingle = singlePB;
+                        competitor.Stats.PersonalBestAverage = averagePB;
+
+                        Console.WriteLine($"Fetched {competitor.Name}: Single {singlePB}s, Avg {averagePB}s");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"WCA API Error: {ex.Message}");
+        }
+        return competitor;
     }
 
     private static async Task<IResult> DeleteCompetitor(
@@ -116,6 +123,24 @@ public static class Endpoints
     {
         state.Round = updatedState.Round;
         state.Competitors = updatedState.Competitors;
+
+        CompetitionService.UpdateCompetitorStats(state);
+
+        await NotifyStateUpdated(state, hub);
+        return Results.Ok(state);
+    }
+
+    private static async Task<IResult> ImportState(
+        [FromBody] CompetitionState importedState,
+        CompetitionState state,
+        IHubContext<OverlayHub> hub,
+        IHttpClientFactory httpClientFactory)
+    {
+        state.Round = importedState.Round;
+
+        state.Competitors.Clear();
+        foreach (var competitor in importedState.Competitors)
+            state.Competitors.Add(await GetCompetitorWCAInfo(competitor, httpClientFactory));
 
         CompetitionService.UpdateCompetitorStats(state);
 

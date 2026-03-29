@@ -26,7 +26,8 @@ public static class CompetitionService
                 state.Competitors);
 
             comp.Stats.NeededForFirst = CalculateNeededForRank(comp, state.Competitors, 1);
-            comp.Stats.NeededForPodium = CalculateNeededForRank(comp, state.Competitors, 3);
+            comp.Stats.NeededForSecond = CalculateNeededForRank(comp, state.Competitors, 2);
+            comp.Stats.NeededForThird = CalculateNeededForRank(comp, state.Competitors, 3);
         }
 
         var activeIds = new[] { state.Round.LeftCompetitorWcaId, state.Round.RightCompetitorWcaId };
@@ -38,7 +39,8 @@ public static class CompetitionService
             if (comp == null) continue;
 
             comp.Stats.NeededForFirst = CalculateNeededForRank(comp, state.Competitors, 1);
-            comp.Stats.NeededForPodium = CalculateNeededForRank(comp, state.Competitors, 3);
+            comp.Stats.NeededForSecond = CalculateNeededForRank(comp, state.Competitors, 2);
+            comp.Stats.NeededForThird = CalculateNeededForRank(comp, state.Competitors, 3);
         }
     }
 

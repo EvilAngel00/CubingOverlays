@@ -175,7 +175,7 @@ function selectCompetitor(side, competitorId) {
     });
 }
 
-async function submit() {
+async function submit(isImport = false) {
     console.log("Submit");
     const leftId = leftSelect.value;
     const rightId = rightSelect.value;
@@ -191,8 +191,13 @@ async function submit() {
     BackupManager.save(state);
     updateLastSavedDisplay();
 
+    let apiEndpoint = "/api/updateState";
+    if (isImport) {
+        apiEndpoint = "/api/importState";
+    }
+
     console.log("State before submit", state);
-    const response = await fetch(`/api/updateState`, {
+    const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(state)
@@ -277,7 +282,7 @@ async function restoreIndex(index) {
         state = selected.state; // Overwrite current state
 
         render(); // Update the control panel UI
-        await submit(); // Push the restored state to the server/overlay
+        await submit(true); // Push the restored state to the server/overlay
 
         document.getElementById('history_modal').close();
     }
@@ -316,7 +321,7 @@ This will overwrite all current live data for ${stateToRestore.round.event}.`;
                 state = stateToRestore;
 
                 render();
-                await submit();
+                await submit(true);
 
                 alert("State successfully restored from file.");
             }

@@ -11,5 +11,6 @@ public class Statistics
     public double? WorstPossibleAverage { get; set; }
     public int? WorstPossibleRank { get; set; }
     public double? NeededForFirst { get; set; }
-    public double? NeededForPodium { get; set; }
+    public double? NeededForSecond { get; set; }
+    public double? NeededForThird { get; set; }
 }

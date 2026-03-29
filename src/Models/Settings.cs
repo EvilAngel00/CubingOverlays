@@ -16,8 +16,8 @@ public class EventRankingSettings
 
 public class HeadToHeadSettings
 {
-    public string LeftPlayerColor { get; set; } = "#000000"; // Black
-    public string RightPlayerColor { get; set; } = "#000000"; // Black
+    public string LeftPlayerColor { get; set; } = "#FFFFFF"; // White
+    public string RightPlayerColor { get; set; } = "#FFFFFF"; // White
 }
 
 public class EventDisplaySettings

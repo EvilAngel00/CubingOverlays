@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Head to Head Overlay</title>
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script type="module" src="/js/overlay-h2h-france2026.js"></script>
+    <link rel="stylesheet" href="/css/overlay-base.css" />
+    <link rel="stylesheet" href="/css/overlay-h2h-france2026.css" />
+</head>
+<body>
+    <div id="container">
+        <div id="left" class="player">
+            <div class="name-bar">
+                <div class="flag-wrapper"></div>
+                <div class="name">---</div>
+            </div>
+
+            <div id="times-left"></div>
+
+            <div class="stats-area">
+                <div class="projections-group">
+                    <div class="avg-container main-avg">
+                        <div class="avg-label">Average</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value"></div>
+                            <div class="rank-box"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container wpa">
+                        <div class="avg-label">WPA</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value"></div>
+                            <div class="rank-box"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container bpa">
+                        <div class="avg-label">BPA</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value"></div>
+                            <div class="rank-box"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container needed" data-rank="3">
+                        <div class="avg-label">For 3rd</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container needed" data-rank="2">
+                        <div class="avg-label">For 2nd</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container needed" data-rank="1">
+                        <div class="avg-label">For 1st</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container pb-stats">
+                        <div class="avg-label">Records</div>
+                        <div class="avg-value-box">
+                            <div class="pb-inner">
+                                <div class="pb-row">
+                                    <span class="pb-lbl">Single</span>
+                                    <span id="left-pb-single" class="pb-val"></span>
+                                </div>
+                                <div class="pb-row">
+                                    <span class="pb-lbl">Average</span>
+                                    <span id="left-pb-average" class="pb-val"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="right" class="player">
+            <div class="name-bar">
+                <div class="name">---</div>
+                <div class="flag-wrapper"></div>
+            </div>
+
+            <div id="times-right"></div>
+
+            <div class="stats-area">
+                <div class="projections-group">
+                    <div class="avg-container pb-stats">
+                        <div class="avg-label">Records</div>
+                        <div class="avg-value-box">
+                            <div class="pb-inner">
+                                <div class="pb-row">
+                                    <span class="pb-lbl">Single</span>
+                                    <span id="right-pb-single" class="pb-val"></span>
+                                </div>
+                                <div class="pb-row">
+                                    <span class="pb-lbl">Average</span>
+                                    <span id="right-pb-average" class="pb-val"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="avg-container needed" data-rank="1">
+                        <div class="avg-label">For 1st</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container needed" data-rank="2">
+                        <div class="avg-label">For 2nd</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container needed" data-rank="3">
+                        <div class="avg-label">For 3rd</div>
+                        <div class="avg-value-box">
+                            <div class="avg-value"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container wpa">
+                        <div class="avg-label">WPA</div>
+                        <div class="avg-value-box">
+                            <div class="rank-box"></div>
+                            <div class="avg-value"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container bpa">
+                        <div class="avg-label">BPA</div>
+                        <div class="avg-value-box">
+                            <div class="rank-box"></div>
+                            <div class="avg-value"></div>
+                        </div>
+                    </div>
+                    <div class="avg-container main-avg">
+                        <div class="avg-label">Average</div>
+                        <div class="avg-value-box">
+                            <div class="rank-box"></div>
+                            <div class="avg-value"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
