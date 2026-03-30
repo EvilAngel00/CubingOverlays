@@ -46,7 +46,7 @@ document.querySelectorAll('input[data-side]').forEach(input => {
 });
 
 document.getElementById("submitTimesBtn")
-    .addEventListener("click", submit);
+    .addEventListener("click", () => submit());
 
 leftSelect.addEventListener("change", async () => {
     selectCompetitor("left", leftSelect.value);
@@ -196,6 +196,7 @@ async function submit(isImport = false) {
         apiEndpoint = "/api/importState";
     }
 
+    console.log("isImport", isImport);
     console.log("State before submit", state);
     const response = await fetch(apiEndpoint, {
         method: "POST",
