@@ -1,6 +1,6 @@
 ﻿@font-face {
     font-family: 'Sour Gummy';
-    src: url('/fonts/sour_gummy/SourGummy-Regular.ttf') format('truetype');
+    src: url('/fonts/sour_gummy/SourGummy-BoldItalic.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -76,13 +76,13 @@ body {
 }
 
 .event-icon {
-    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+    background: transparent; /*linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);*/
     padding: 20px;
     width: 160px;
     height: 160px;
     color: white;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);
+    /*box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);*/
     display: flex;
     align-items: center;
     justify-content: center;
@@ -97,11 +97,11 @@ body {
 }
 
 .competition-title {
-    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+    background: transparent; /*linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);*/
     font-family: 'Sour Gummy', sans-serif;
     padding: 20px 40px; /* Reduced vertical padding slightly since text is taller now */
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);
+    /*box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);*/
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -110,12 +110,12 @@ body {
 
     .competition-title h1 {
         font-size: 56px; /* Slightly smaller to ensure fit */
-        font-weight: bold;
-        letter-spacing: 2px;
-        margin-bottom: 0; /* Remove margin to pull subtitle closer */
-        color: var(--text-light);
-        line-height: 1.1;
-    }
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 0; /* Remove margin to pull subtitle closer */
+    color: white;
+    line-height: 1.1;
+}
 
     .competition-title h2 {
         font-family: 'Inglobal', sans-serif;
@@ -192,6 +192,7 @@ body {
     }
 
 .ranking-competitor-name {
+    flex: 1;
     color: white;
     font-size: 32px;
     font-weight: 600;

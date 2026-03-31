@@ -159,21 +159,23 @@ public class OverlayHub : Hub
     {
         var eventNames = new Dictionary<string, string>
         {
-            { "333", "3x3x3 Cube" },
-            { "222", "2x2x2 Cube" },
-            { "444", "4x4x4 Cube" },
-            { "555", "5x5x5 Cube" },
-            { "666", "6x6x6 Cube" },
-            { "777", "7x7x7 Cube" },
-            { "333bf", "3x3x3 Blindfolded" },
-            { "333fm", "3x3x3 Fewest Moves" },
-            { "333oh", "3x3x3 One-Handed" },
+            { "333", "3x3" },
+            { "222", "2x2" },
+            { "444", "4x4" },
+            { "555", "5x5" },
+            { "666", "6x6" },
+            { "777", "7x7" },
+            { "333bf", "3BLD" },
+            { "333fm", "FMC" },
+            { "333oh", "OH" },
             { "clock", "Clock" },
             { "minx", "Megaminx" },
             { "pyram", "Pyraminx" },
             { "skewb", "Skewb" },
             { "sq1", "Square-1" },
-            { "333mbf", "3x3x3 Multi-Blind" }
+            { "333mbf", "Multiblind" },
+            { "444bf", "4BLD" },
+            { "555bf", "5BLD" }
         };
 
         return eventNames.TryGetValue(eventId, out var name) ? name : eventId;

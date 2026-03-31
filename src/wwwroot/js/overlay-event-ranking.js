@@ -112,7 +112,8 @@ class EventRankingOverlay extends OverlayCore {
         const subTitleEl = document.getElementById('event-round-info');
 
         if (compTitleEl) compTitleEl.textContent = competitionName;
-        if (subTitleEl) subTitleEl.innerHTML = this.isCondensed ? `${eventLabel}<br>${roundLabel}` : `${eventLabel} - ${roundLabel}`;
+        //if (subTitleEl) subTitleEl.innerHTML = this.isCondensed ? `${eventLabel}<br>${roundLabel}` : `${eventLabel} - ${roundLabel}`;
+        if (subTitleEl) subTitleEl.innerHTML = `${eventLabel}<br>${roundLabel}`;
 
         if (!this.isCondensed) {
             this.maxAttemptCount = Math.max(
