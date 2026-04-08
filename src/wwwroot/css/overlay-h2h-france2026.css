@@ -402,3 +402,38 @@
 #right .pb-stats .avg-label {
     background-color: var(--secondary);
 }
+
+/* Indicator Dot Base */
+.solve-box {
+    position: relative; /* Needed for absolute positioning of dots */
+}
+
+    .solve-box.best-time::after,
+    .solve-box.worst-time::after {
+        content: '';
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    /* Green Dot for Best */
+    .solve-box.best-time::after {
+        background-color: #2ecc71; /* Emerald Green */
+    }
+
+    /* Red Dot for Worst */
+    .solve-box.worst-time::after {
+        background-color: #e74c3c; /* Alizarin Red */
+    }
+
+/* Positioning: Left side player dots on the left, Right side on the right */
+#left .solve-box::after {
+    left: -20px;
+}
+
+#right .solve-box::after {
+    right: -20px;
+}

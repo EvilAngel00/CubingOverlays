@@ -97,13 +97,59 @@ function renderSolveBoxes(side, root, competitor) {
     const timesContainer = document.getElementById(`times-${side}`);
     timesContainer.innerHTML = "";
 
+    // 1. Filter for solves that actually have data
+    const validSolves = competitor.solves
+        .filter(s => s && s.time !== undefined)
+        .map(s => ({
+            solveNumber: s.solveNumber,
+            time: s.time,
+            isDNF: s.penalty === "dnf" || s.time === -1
+        }));
+
+    let bestTime = Infinity;
+    let worstTime = -Infinity;
+
+    let bestSolveNumber = -1;
+    let worstSolveNumber = -1;
+
+    // ONLY calculate extremes if there are 2 or more solves
+    if (validSolves.length >= 2) {
+        validSolves.forEach(s => {
+            const currentTime = s.isDNF ? 999999 : s.time;
+
+            // Best is the lowest non-DNF time
+            if (!s.isDNF && s.time < bestTime) {
+                bestTime = s.time;
+                bestSolveNumber = s.solveNumber;
+            }
+
+            // Worst is DNF (999999) or the highest numeric time
+            if (currentTime > worstTime) {
+                worstTime = currentTime;
+                worstSolveNumber = s.solveNumber;
+            }
+        });
+    }
+
+    // 2. Render the boxes
     for (let i = 1; i <= 5; i++) {
         const solveData = competitor.solves.find(s => s && s.solveNumber === i);
         const displayTime = solveData ? formatSolve(solveData) : "—";
 
         const box = document.createElement("div");
         box.className = "solve-box";
-        if (!solveData) box.setAttribute("data-empty", "true");
+
+        if (!solveData) {
+            box.setAttribute("data-empty", "true");
+        } else {
+            // Apply classes only if they match the calculated extremes
+            if (solveData.solveNumber === bestSolveNumber && bestTime !== Infinity) {
+                box.classList.add("best-time");
+            }
+            if (solveData.solveNumber === worstSolveNumber && worstTime !== -Infinity) {
+                box.classList.add("worst-time");
+            }
+        }
 
         box.textContent = displayTime;
         timesContainer.appendChild(box);
