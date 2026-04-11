@@ -5,9 +5,13 @@ using CubingOverlays.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<CompetitionState>();
+builder.Services.AddSingleton<H2hStateHolder>();
 builder.Services.AddSingleton<ICompetitionCacheService, CompetitionCacheService>();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    if (builder.Environment.IsDevelopment())
+        options.EnableDetailedErrors = true;
+});
 builder.Services.AddHttpClient();
 
 var app = builder.Build();

@@ -1,35 +1,31 @@
 ﻿import { getOrdinal, formatSolve } from './utils.js';
 
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/overlayHub")
-    .build();
+const hub = new SignalRManager();
 
 var settings = null;
 
-connection.on("StateUpdated", state => {
-    console.log("StateUpdated");
-    console.log("State", state);
-    renderSide("left", state.round.leftCompetitorWcaId, state);
-    renderSide("right", state.round.rightCompetitorWcaId, state);
+hub.on("StateUpdated", state => {
+    console.log("StateUpdated", state);
+    renderSide("left", state.leftCompetitorWcaId, state);
+    renderSide("right", state.rightCompetitorWcaId, state);
 });
 
-connection.on("SettingsUpdated", (updatedSettings) => {
+hub.on("SettingsUpdated", (updatedSettings) => {
     console.log("Settings updated from server:", updatedSettings);
     applySettings(updatedSettings);
 });
 
 async function start() {
     console.log("Start");
-    await connection.start();
-    const res = await fetch("/api/state");
-    const state = await res.json();
+    await hub.start();
+    const state = await hub.invoke("GetState");
     console.log("State", state);
 
-    const settings = await connection.invoke("GetDisplaySettings");
-    applySettings(settings);
+    const fetchedSettings = await hub.invoke("GetDisplaySettings");
+    applySettings(fetchedSettings);
 
-    renderSide("left", state.round.leftCompetitorWcaId, state);
-    renderSide("right", state.round.rightCompetitorWcaId, state);
+    renderSide("left", state.leftCompetitorWcaId, state);
+    renderSide("right", state.rightCompetitorWcaId, state);
 }
 
 start();

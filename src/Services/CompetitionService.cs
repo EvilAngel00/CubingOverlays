@@ -5,10 +5,11 @@ namespace CubingOverlays.Services;
 
 public static class CompetitionService
 {
-    public static void UpdateCompetitorStats(CompetitionState state)
+    public static void UpdateCompetitorStats(H2hState state)
     {
         foreach (var comp in state.Competitors)
-        { 
+        {
+            comp.Stats ??= new Statistics();
             comp.Stats.Average = CalculateAo5(comp.Solves);
             comp.Stats.CurrentRank = CalculateRank(
                 comp.Stats.Average,
@@ -30,7 +31,7 @@ public static class CompetitionService
             comp.Stats.NeededForThird = CalculateNeededForRank(comp, state.Competitors, 3);
         }
 
-        var activeIds = new[] { state.Round.LeftCompetitorWcaId, state.Round.RightCompetitorWcaId };
+        var activeIds = new[] { state.LeftCompetitorWcaId, state.RightCompetitorWcaId };
 
         // Calculate again for active competitors in case a time gets deleted
         foreach (var id in activeIds)

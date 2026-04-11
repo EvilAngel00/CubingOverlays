@@ -1,15 +1,11 @@
 ﻿export class OverlayCore {
     constructor() {
-        this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("/overlayHub")
-            .withAutomaticReconnect()
-            .build();
+        this.connection = new SignalRManager();
     }
 
     async start() {
         try {
             await this.connection.start();
-            console.log("SignalR Connected");
         } catch (err) {
             console.error("Connection Failed: ", err);
         }

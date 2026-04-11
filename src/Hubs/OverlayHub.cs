@@ -7,18 +7,146 @@ namespace CubingOverlays.Hubs;
 public class OverlayHub : Hub
 {
     private readonly ICompetitionCacheService _cacheService;
+    private readonly H2hState _state;
+    private readonly IHttpClientFactory _httpClientFactory;
+
     private static FilteredRankingResponse? LastSentRankings { get; set; }
     private static EventDisplayState CurrentEventDisplays { get; set; } = new();
     private static Settings CurrentSettings { get; set; } = new();
 
-    public OverlayHub(ICompetitionCacheService cacheService)
+    public OverlayHub(ICompetitionCacheService cacheService, H2hStateHolder stateHolder, IHttpClientFactory httpClientFactory)
     {
         _cacheService = cacheService;
+        _state = stateHolder.State;
+        _httpClientFactory = httpClientFactory;
     }
+
+    // ── H2H State ─────────────────────────────────────────────────────────────
+
+    public H2hState GetState() => _state;
+
+    public string Test() => "test";
+
+    public async Task<H2hState> UpdateState(H2hState updatedState)
+    {
+        _state.LeftCompetitorWcaId = updatedState.LeftCompetitorWcaId;
+        _state.RightCompetitorWcaId = updatedState.RightCompetitorWcaId;
+        _state.LeftGroupWcaIds = updatedState.LeftGroupWcaIds;
+        _state.RightGroupWcaIds = updatedState.RightGroupWcaIds;
+        _state.Competitors = updatedState.Competitors;
+
+        CompetitionService.UpdateCompetitorStats(_state);
+
+        await Clients.Others.SendAsync("StateUpdated", _state);
+        return _state;
+    }
+
+    public async Task<H2hState> AddCompetitor(Competitor competitor)
+    {
+        var existing = _state.Competitors.FirstOrDefault(c => c.WcaId == competitor.WcaId);
+        if (existing != null)
+        {
+            existing.Name = competitor.Name;
+            existing.Country = competitor.Country;
+        }
+        else
+        {
+            competitor = await FetchWcaInfo(competitor);
+            _state.Competitors.Add(competitor);
+            if (_state.LeftGroupWcaIds.Count <= _state.RightGroupWcaIds.Count)
+                _state.LeftGroupWcaIds.Add(competitor.WcaId);
+            else
+                _state.RightGroupWcaIds.Add(competitor.WcaId);
+        }
+
+        await Clients.Others.SendAsync("StateUpdated", _state);
+        return _state;
+    }
+
+    public async Task<H2hState> DeleteCompetitor(string wcaId)
+    {
+        var competitor = _state.Competitors.FirstOrDefault(c => c.WcaId == wcaId);
+        if (competitor != null)
+        {
+            _state.Competitors.Remove(competitor);
+            _state.LeftGroupWcaIds.Remove(wcaId);
+            _state.RightGroupWcaIds.Remove(wcaId);
+            if (_state.LeftCompetitorWcaId == wcaId) _state.LeftCompetitorWcaId = null;
+            if (_state.RightCompetitorWcaId == wcaId) _state.RightCompetitorWcaId = null;
+        }
+
+        await Clients.Others.SendAsync("StateUpdated", _state);
+        return _state;
+    }
+
+    public async Task<H2hState> ImportState(H2hState importedState)
+    {
+        _state.LeftCompetitorWcaId = importedState.LeftCompetitorWcaId;
+        _state.RightCompetitorWcaId = importedState.RightCompetitorWcaId;
+        _state.LeftGroupWcaIds = importedState.LeftGroupWcaIds;
+        _state.RightGroupWcaIds = importedState.RightGroupWcaIds;
+        _state.Competitors.Clear();
+        foreach (var competitor in importedState.Competitors)
+            _state.Competitors.Add(await FetchWcaInfo(competitor));
+
+        CompetitionService.UpdateCompetitorStats(_state);
+
+        await Clients.Others.SendAsync("StateUpdated", _state);
+        return _state;
+    }
+
+    public async Task<H2hState> BatchImportCompetitors(IEnumerable<string> wcaIds)
+    {
+        foreach (var id in wcaIds.Reverse())
+        {
+            var normalizedId = id.ToUpper();
+            if (_state.Competitors.Any(c => c.WcaId == normalizedId)) continue;
+
+            var competitor = await FetchWcaInfo(new Competitor(normalizedId, "Fetching...", "--"));
+            _state.Competitors.Add(competitor);
+            if (_state.LeftGroupWcaIds.Count <= _state.RightGroupWcaIds.Count)
+                _state.LeftGroupWcaIds.Add(competitor.WcaId);
+            else
+                _state.RightGroupWcaIds.Add(competitor.WcaId);
+        }
+
+        await Clients.Others.SendAsync("StateUpdated", _state);
+        return _state;
+    }
+
+    private async Task<Competitor> FetchWcaInfo(Competitor competitor)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"https://www.worldcubeassociation.org/api/v0/persons/{competitor.WcaId.ToUpper()}");
+            if (response.IsSuccessStatusCode)
+            {
+                var wcaData = await response.Content.ReadFromJsonAsync<WcaPersonResponse>();
+                if (wcaData?.Person != null)
+                {
+                    competitor.Name = wcaData.Person.Name;
+                    competitor.Country = wcaData.Person.CountryIso2;
+                    if (wcaData.PersonalRecords?.TryGetValue("333", out var records) == true)
+                    {
+                        competitor.Stats.PersonalBestSingle = records.Single?.Best / 100.0 ?? 0;
+                        competitor.Stats.PersonalBestAverage = records.Average?.Best / 100.0 ?? 0;
+                        Console.WriteLine($"Fetched {competitor.Name}: Single {competitor.Stats.PersonalBestSingle}s, Avg {competitor.Stats.PersonalBestAverage}s");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"WCA API Error: {ex.Message}");
+        }
+        return competitor;
+    }
+
+    // ── Rankings ──────────────────────────────────────────────────────────────
 
     public async Task RequestRankings(string competitionId, string eventId, int roundNumber)
     {
-        // Get cached competition data
         var competitionData = _cacheService.GetCachedWcaLiveCompetitionData(competitionId);
         var competitionWcifData = _cacheService.GetCachedWcifCompetitionData(competitionId);
 
@@ -31,18 +159,15 @@ public class OverlayHub : Hub
         try
         {
             var filteredResponse = FilterRankings(competitionData, competitionWcifData, eventId, roundNumber);
-            
+
             if (filteredResponse == null)
             {
-                await Clients.All.SendAsync("RankingsError", "No rankings found for the selected event and round.");
+                await Clients.Caller.SendAsync("RankingsError", "No rankings found for the selected event and round.");
                 return;
             }
 
-            // Cache the last sent rankings
             LastSentRankings = filteredResponse;
-
-            // Send filtered rankings to all clients
-            await Clients.All.SendAsync("RankingsReceived", filteredResponse);
+            await Clients.Others.SendAsync("RankingsReceived", filteredResponse);
         }
         catch (Exception ex)
         {
@@ -51,48 +176,35 @@ public class OverlayHub : Hub
         }
     }
 
-    public async Task<FilteredRankingResponse?> GetLastRankings()
-    {
-        if (LastSentRankings == null)
-        {
-            Console.WriteLine("No last rankings cached");
-            return null;
-        }
+    public Task<FilteredRankingResponse?> GetLastRankings() => Task.FromResult(LastSentRankings);
 
-        Console.WriteLine($"Returning cached rankings for {LastSentRankings.EventName} Round {LastSentRankings.RoundNumber}");
-        return LastSentRankings;
-    }
+    // ── Event Displays ────────────────────────────────────────────────────────
 
     public async Task UpdateEventDisplays(EventDisplayState newState)
     {
         CurrentEventDisplays = newState;
-
         Console.WriteLine($"Event Displays updated: Primary={newState.Primary.Event}, Secondary={newState.Secondary.Event}");
-
-        // Broadcast the new state to all connected clients (overlays)
-        await Clients.All.SendAsync("EventDisplaysUpdated", CurrentEventDisplays);
+        await Clients.Others.SendAsync("EventDisplaysUpdated", CurrentEventDisplays);
     }
 
-    // Method for new overlays to call when they first load
-    public async Task<EventDisplayState> GetEventDisplays()
-    {
-        return CurrentEventDisplays;
-    }
+    // ── Settings ──────────────────────────────────────────────────────────────
 
     public async Task UpdateDisplaySettings(Settings settings)
     {
         CurrentSettings = settings;
-        // Broadcast to all connected overlays (and the settings page itself)
-        await Clients.All.SendAsync("SettingsUpdated", CurrentSettings);
+        await Clients.Others.SendAsync("SettingsUpdated", CurrentSettings);
     }
 
-    public async Task<Settings> GetDisplaySettings() => CurrentSettings;
+    public Task<Settings> GetDisplaySettings() => Task.FromResult(CurrentSettings);
 
-    public async Task<Settings> ResetDisplaySettings() {
+    public async Task<Settings> ResetDisplaySettings()
+    {
         CurrentSettings = new();
-        await Clients.All.SendAsync("SettingsUpdated", CurrentSettings);
+        await Clients.Others.SendAsync("SettingsUpdated", CurrentSettings);
         return CurrentSettings;
     }
+
+    // ── Private: Ranking helpers ──────────────────────────────────────────────
 
     private static FilteredRankingResponse? FilterRankings(
         WcaLiveCompetitionResponse competitionData,

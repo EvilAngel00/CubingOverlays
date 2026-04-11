@@ -1,0 +1,6 @@
+﻿I would like to consolidate this code base in several ways:
+•	I would like to get rid of the REST API and use SignalR for every state change (adding, editing and removing competitors in h2h).
+•	I would like to have multiple command centers connected while still keeping them synchronized, for that, I want them to become SignalR clients as well and updates should be sent to everyone except self.
+•	I would like to get rid of code repetition, mainly in the JS part with the SignalR connections and have a single class taking care of it (although user of this class should be able to add subscriptions and callbacks).
+•	I would like to remove the france2026 specific things but move the improvements from it to the main code, i.e. the red and green dots for worst and best, the time needed for 1st, 2nd and 3rd and the fact that things are always displayed.
+Do you see any other parts where the code could be improved?

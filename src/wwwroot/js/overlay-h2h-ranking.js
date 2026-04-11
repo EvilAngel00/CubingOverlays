@@ -21,8 +21,8 @@ class LeaderboardOverlay extends OverlayCore {
         });
         await this.start();
 
-        const res = await fetch("/api/state");
-        this.state = await res.json();
+        const state = await this.connection.invoke("GetState");
+        this.state = state;
         console.log("Fetched State", this.state);
 
         await this.restoreLastRankings();

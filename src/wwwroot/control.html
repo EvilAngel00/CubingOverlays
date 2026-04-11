@@ -80,17 +80,6 @@
                     <span id="lastSavedDisplay" class="text-[10px] font-mono text-success opacity-70 leading-tight">Waiting for save...</span>
                 </div>
             </div>
-
-            <div class="stats bg-base-200 shadow">
-                <div class="stat py-2 px-4">
-                    <div class="stat-title text-xs uppercase font-bold opacity-50">Event</div>
-                    <div id="event" class="stat-value text-lg text-secondary">---</div>
-                </div>
-                <div class="stat py-2 px-4 border-l border-base-300">
-                    <div class="stat-title text-xs uppercase font-bold opacity-50">Round</div>
-                    <div id="round" class="stat-value text-lg">---</div>
-                </div>
-            </div>
         </header>
 
         <section class="collapse collapse-arrow bg-base-100 border border-base-300 shadow-xl mb-8">
@@ -313,9 +302,9 @@
         <form method="dialog" class="modal-backdrop"><button>close</button></form>
     </dialog>
 
-    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="/js/competitor-manager.js"></script>
-    <script src="/js/control.js"></script>
     <script src="/js/backup-manager.js"></script>
+    <script src="/js/signalr-manager.js"></script>
+    <script src="/js/control.js"></script>
 </body>
 </html>

@@ -58,14 +58,17 @@ rightSelect.addEventListener("change", async () => {
     await submit();
 });
 
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/overlayHub")
-    .build();
+const hub = new SignalRManager();
+
+hub.on("StateUpdated", updatedState => {
+    console.log("State updated by another control center");
+    state = updatedState;
+    render();
+});
 
 async function init() {
-    await connection.start();
-    const res = await fetch("/api/state");
-    state = await res.json();
+    await hub.start();
+    state = await hub.invoke("GetState");
 
     CompetitorManager.init();
     render();
@@ -78,14 +81,11 @@ function render() {
     console.log("State", state);
     if (!state) return;
 
-    document.getElementById("event").textContent = state.round.event;
-    document.getElementById("round").textContent = state.round.roundName;
-
     CompetitorManager.renderList(state.competitors);
 
     renderCompetitors();
-    selectCompetitor("left", state.round.leftCompetitorWcaId);
-    selectCompetitor("right", state.round.rightCompetitorWcaId);
+    selectCompetitor("left", state.leftCompetitorWcaId);
+    selectCompetitor("right", state.rightCompetitorWcaId);
 }
 
 function renderCompetitors() {
@@ -101,17 +101,17 @@ function renderCompetitors() {
         });
     });
 
-    if (state.round.leftCompetitorWcaId) {
-        leftSelect.value = state.round.leftCompetitorWcaId;
+    if (state.leftCompetitorWcaId) {
+        leftSelect.value = state.leftCompetitorWcaId;
     }
     else {
-        state.round.leftCompetitorWcaId = leftSelect.value;
+        state.leftCompetitorWcaId = leftSelect.value;
     }
-    if (state.round.rightCompetitorWcaId) {
-        rightSelect.value = state.round.rightCompetitorWcaId;
+    if (state.rightCompetitorWcaId) {
+        rightSelect.value = state.rightCompetitorWcaId;
     }
     else {
-        state.round.rightCompetitorWcaId = rightSelect.value;
+        state.rightCompetitorWcaId = rightSelect.value;
     }
 }
 
@@ -124,19 +124,10 @@ async function saveCompetitor() {
         country: document.getElementById("modal_country").value
     };
 
-    const response = await fetch("/api/addcompetitor", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComp)
-    });
-
-    if (response.ok) {
-        const res = await fetch("/api/state");
-        state = await res.json();
-        CompetitorManager.renderList(state.competitors);
-        renderCompetitors();
-        document.getElementById("competitor_modal").close();
-    }
+    state = await hub.invoke("AddCompetitor", newComp);
+    CompetitorManager.renderList(state.competitors);
+    renderCompetitors();
+    document.getElementById("competitor_modal").close();
 }
 
 function selectCompetitor(side, competitorId) {
@@ -150,7 +141,7 @@ function selectCompetitor(side, competitorId) {
     );
 
     const propertyName = `${side}CompetitorWcaId`;
-    state.round[propertyName] = competitorId;
+    state[propertyName] = competitorId;
 
     inputs.forEach(i => i.value = "");
 
@@ -177,6 +168,9 @@ function selectCompetitor(side, competitorId) {
 
 async function submit(isImport = false) {
     console.log("Submit");
+
+    if (!state) return;
+
     const leftId = leftSelect.value;
     const rightId = rightSelect.value;
 
@@ -185,29 +179,31 @@ async function submit(isImport = false) {
         return;
     }
 
-    state.competitors.find(c => c.wcaId === leftSelect.value).solves = getSolvesFromInputs("left", leftSelect.value);
-    state.competitors.find(c => c.wcaId === rightSelect.value).solves = getSolvesFromInputs("right", rightSelect.value);
+    const leftComp = state.competitors.find(c => c.wcaId === leftId);
+    const rightComp = state.competitors.find(c => c.wcaId === rightId);
+
+    if (!leftComp || !rightComp) {
+        console.error("Cannot submit: Competitor not found in state.", { leftId, rightId });
+        return;
+    }
+
+    leftComp.solves = getSolvesFromInputs("left", leftId);
+    rightComp.solves = getSolvesFromInputs("right", rightId);
 
     BackupManager.save(state);
     updateLastSavedDisplay();
 
-    let apiEndpoint = "/api/updateState";
-    if (isImport) {
-        apiEndpoint = "/api/importState";
-    }
-
     console.log("isImport", isImport);
     console.log("State before submit", state);
-    const response = await fetch(apiEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(state)
-    });
 
-    if (response.ok) {
-        const updatedState = await response.json();
-        state = updatedState;
-    } else {
+    try {
+        if (isImport) {
+            state = await hub.invoke("ImportState", state);
+        } else {
+            state = await hub.invoke("UpdateState", state);
+        }
+    } catch (err) {
+        console.error(err);
         alert("Error updating state.");
     }
     console.log("State after submit", state);
@@ -264,7 +260,6 @@ function openHistoryModal() {
                         <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-colors group">
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold font-mono opacity-40">${entry.timestamp}</span>
-                                <span class="text-sm font-semibold">${entry.state.round.event} - ${entry.state.round.roundName}</span>
                             </div>
                             <button onclick="restoreIndex(${index})" class="btn btn-xs btn-secondary opacity-0 group-hover:opacity-100 transition-opacity">
                                 Restore
@@ -359,42 +354,23 @@ async function processBatchImport() {
     const btn = document.getElementById('batchConfirmBtn');
     const ids = textarea.value.split('\n')
         .map(id => id.trim().toUpperCase())
-        .filter(id => id.length > 0)
-        .reverse();
+        .filter(id => id.length > 0);
 
     if (ids.length === 0) return;
 
     // UI Feedback
     btn.disabled = true;
     const originalText = btn.textContent;
+    btn.textContent = `Importing ${ids.length} competitor(s)...`;
 
-    for (let i = 0; i < ids.length; i++) {
-        btn.textContent = `Importing ${i + 1}/${ids.length}...`;
+    try {
+        state = await hub.invoke("BatchImportCompetitors", ids);
 
-        const newComp = {
-            wcaId: ids[i],
-            name: "Fetching...", // Backend will overwrite these
-            country: "--"
-        };
-
-        try {
-            await fetch("/api/addcompetitor", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newComp)
-            });
-        } catch (err) {
-            console.error(`Failed to import ${ids[i]}`, err);
-        }
+        CompetitorManager.renderList(state.competitors);
+        renderCompetitors();
+    } catch (err) {
+        console.error("Batch import failed", err);
     }
-
-    // Refresh state and UI
-    const res = await fetch("/api/state");
-    state = await res.json();
-
-    // Update displays
-    CompetitorManager.renderList(state.competitors);
-    renderCompetitors();
 
     // Cleanup
     btn.disabled = false;

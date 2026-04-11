@@ -20,8 +20,8 @@
         const leftIds = Array.from(document.getElementById('listA').children).map(el => el.dataset.id);
         const rightIds = Array.from(document.getElementById('listB').children).map(el => el.dataset.id);
 
-        state.round.leftGroupWcaIds = leftIds;
-        state.round.rightGroupWcaIds = rightIds;
+        state.leftGroupWcaIds = leftIds;
+        state.rightGroupWcaIds = rightIds;
 
         this.renderList(state.competitors);
 
@@ -46,7 +46,7 @@
         // Create a lookup map for speed
         const compMap = new Map(competitors.map(c => [c.wcaId, c]));
 
-        state.round.leftGroupWcaIds.forEach(id => {
+        state.leftGroupWcaIds.forEach(id => {
             const c = compMap.get(id);
             if (c) {
                 listA.appendChild(this.createCard(c));
@@ -54,7 +54,7 @@
             }
         });
 
-        state.round.rightGroupWcaIds.forEach(id => {
+        state.rightGroupWcaIds.forEach(id => {
             const c = compMap.get(id);
             if (c) {
                 listB.appendChild(this.createCard(c));
@@ -66,10 +66,10 @@
         // Group array(e.g.newly added), put them in List A.
         compMap.forEach(c => {
             listA.appendChild(this.createCard(c));
-            state.round.leftGroupWcaIds.push(c.wcaId);
+            state.leftGroupWcaIds.push(c.wcaId);
         });
 
-        const matchCount = Math.min(state.round.leftGroupWcaIds.length, state.round.rightGroupWcaIds.length);
+        const matchCount = Math.min(state.leftGroupWcaIds.length, state.rightGroupWcaIds.length);
 
         for (let i = 0; i < matchCount; i++) {
             const btn = document.createElement("button");
@@ -84,8 +84,8 @@
                 <span class="text-[10px] block font-black">SET</span>
             `;
 
-            const leftId = state.round.leftGroupWcaIds[i];
-            const rightId = state.round.rightGroupWcaIds[i];
+            const leftId = state.leftGroupWcaIds[i];
+            const rightId = state.rightGroupWcaIds[i];
 
             btn.onclick = () => this.setMatchup(leftId, rightId);
             btnContainer.appendChild(btn);
@@ -93,12 +93,12 @@
     },
 
     async setMatchup(leftWcaId, rightWcaId) {
-        state.round.leftCompetitorWcaId = leftWcaId;
-        state.round.rightCompetitorWcaId = rightWcaId;
+        state.leftCompetitorWcaId = leftWcaId;
+        state.rightCompetitorWcaId = rightWcaId;
 
         renderCompetitors();
-        selectCompetitor("left", state.round.leftCompetitorWcaId);
-        selectCompetitor("right", state.round.rightCompetitorWcaId);
+        selectCompetitor("left", state.leftCompetitorWcaId);
+        selectCompetitor("right", state.rightCompetitorWcaId);
 
         await submit();
 
@@ -144,9 +144,9 @@
     },
 
     async swapGroups() {
-        const temp = state.round.leftGroupWcaIds;
-        state.round.leftGroupWcaIds = state.round.rightGroupWcaIds;
-        state.round.rightGroupWcaIds = temp;
+        const temp = state.leftGroupWcaIds;
+        state.leftGroupWcaIds = state.rightGroupWcaIds;
+        state.rightGroupWcaIds = temp;
 
         this.renderList(state.competitors);
 
@@ -158,20 +158,11 @@
 
         if (confirmed) {
             try {
-                const response = await fetch(`/api/competitor/${wcaId}`, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    const updatedState = await response.json();
-                    state = updatedState;
-                    render();
-                } else {
-                    alert("Error deleting competitor.");
-                }
+                state = await hub.invoke("DeleteCompetitor", wcaId);
+                render();
             } catch (err) {
                 console.error("Delete failed:", err);
-                alert("Network error while deleting.");
+                alert("Error deleting competitor.");
             }
         }
     },

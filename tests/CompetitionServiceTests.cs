@@ -41,7 +41,7 @@ public class CompetitionServiceTests
         };
 
         // Calculate stats for all competitors
-        var state = new CompetitionState { Competitors = competitors };
+        var state = new H2hState { Competitors = competitors };
         CompetitionService.UpdateCompetitorStats(state);
 
         return competitors;
