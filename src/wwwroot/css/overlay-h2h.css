@@ -1,6 +1,4 @@
 ﻿:root {
-    --color-bpa: #27ae60;
-    --color-wpa: #c0392b;
     --color-best: #da291c;
     --color-worst: #046a38;
 }
@@ -127,17 +125,13 @@
 
 /* Each stat row: label + value [+ rank] */
 .avg-container {
-    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 10px;
-    width: auto;
-    margin-top: 0;
 }
 
 .avg-label {
-    position: static;
     background: none;
     color: inherit;
     font-size: 11px;
@@ -145,11 +139,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     padding: 0;
-    border-radius: 0;
     min-width: 60px;
-    top: auto;
-    left: auto;
-    right: auto;
 }
 
 .avg-value-box {
@@ -157,11 +147,6 @@
     flex-direction: row;
     align-items: center;
     gap: 8px;
-    background: none;
-    border: none;
-    width: auto;
-    height: auto;
-    padding: 0;
 }
 
 .avg-value {
@@ -175,43 +160,8 @@
 }
 
 .rank-box {
-    position: static;
-    width: auto;
-    height: auto;
-    background: none;
-    border: none;
     font-weight: 700;
     font-size: 14px;
-    color: inherit;
-}
-
-/* ---- Needed for rank containers ---- */
-.avg-container.needed .avg-label {
-    background: none;
-    color: inherit;
-    font-size: 11px;
-    min-width: 60px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: static;
-    top: auto;
-    left: auto;
-    right: auto;
-}
-
-.avg-container.needed .avg-value-box {
-    background: none;
-    border: none;
-    width: auto;
-    height: auto;
-    padding: 0;
-}
-
-.avg-container.needed .avg-value {
-    font-size: 1.8rem;
     color: inherit;
 }
 
@@ -251,5 +201,3 @@
     font-size: 1.1rem;
     color: inherit;
 }
-
-/* ---- BPA / WPA color coding ---- */
