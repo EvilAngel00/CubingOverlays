@@ -34,9 +34,6 @@ class LeaderboardOverlay extends OverlayCore {
     }
 
     render(state) {
-        const compTitleEl = document.getElementById('competition-name');
-        if (compTitleEl) compTitleEl.textContent = this.competitionName;
-
         const listElement = document.getElementById("rankings-list");
 
         const ranked = state.competitors

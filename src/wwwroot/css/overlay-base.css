@@ -46,7 +46,7 @@ html {
 
 body {
     background-color: var(--chroma);
-    font-family: 'Sour Gummy', sans-serif;
+    font-family: Linux Biolinum, sans-serif;
     padding: 50px;
     overflow: auto;
 }
@@ -76,7 +76,7 @@ body {
 }
 
 .event-icon {
-    background: transparent; /*linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);*/
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
     padding: 20px;
     width: 160px;
     height: 160px;
@@ -97,8 +97,7 @@ body {
 }
 
 .competition-title {
-    background: transparent; /*linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);*/
-    font-family: 'Sour Gummy', sans-serif;
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
     padding: 20px 40px; /* Reduced vertical padding slightly since text is taller now */
     border-radius: 8px;
     /*box-shadow: 0 4px 12px rgba(127, 107, 255, 0.3);*/
@@ -110,20 +109,11 @@ body {
 
     .competition-title h1 {
         font-size: 56px; /* Slightly smaller to ensure fit */
-    font-weight: bold;
-    letter-spacing: 2px;
-    margin-bottom: 0; /* Remove margin to pull subtitle closer */
-    color: white;
-    line-height: 1.1;
-}
-
-    .competition-title h2 {
-        font-family: 'Inglobal', sans-serif;
-        font-size: 46px; /* Distinctly smaller than h1 */
-        font-weight: 400; /* Lighter weight for contrast */
-        letter-spacing: 1px;
-        margin-top: 5px;
-        color: var(--text-light);
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 0; /* Remove margin to pull subtitle closer */
+        color: white;
+        line-height: 1.1;
     }
 
 .rankings-list {

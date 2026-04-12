@@ -7,38 +7,26 @@ public static class CompetitionService
 {
     public static void UpdateCompetitorStats(H2hState state)
     {
+        // Pass 1: per-competitor stats that don't depend on anyone else
         foreach (var comp in state.Competitors)
         {
             comp.Stats ??= new Statistics();
             comp.Stats.Average = CalculateAo5(comp.Solves);
-            comp.Stats.CurrentRank = CalculateRank(
-                comp.Stats.Average,
-                comp.WcaId,
-                state.Competitors);
             comp.Stats.BestPossibleAverage = CalculateBPA(comp.Solves);
             comp.Stats.WorstPossibleAverage = CalculateWPA(comp.Solves);
-            comp.Stats.BestPossibleRank = CalculateProjectedBPARank(
-                comp.Stats.BestPossibleAverage,
-                comp.WcaId,
-                state.Competitors);
-            comp.Stats.WorstPossibleRank = CalculateProjectedWPARank(
-                comp.Stats.WorstPossibleAverage,
-                comp.WcaId,
-                state.Competitors);
-
-            comp.Stats.NeededForFirst = CalculateNeededForRank(comp, state.Competitors, 1);
-            comp.Stats.NeededForSecond = CalculateNeededForRank(comp, state.Competitors, 2);
-            comp.Stats.NeededForThird = CalculateNeededForRank(comp, state.Competitors, 3);
         }
 
-        var activeIds = new[] { state.LeftCompetitorWcaId, state.RightCompetitorWcaId };
-
-        // Calculate again for active competitors in case a time gets deleted
-        foreach (var id in activeIds)
+        // Pass 2: ranks — requires all averages to be finalised first
+        foreach (var comp in state.Competitors)
         {
-            var comp = state.Competitors.FirstOrDefault(c => c.WcaId == id);
-            if (comp == null) continue;
+            comp.Stats.CurrentRank = CalculateRank(comp.Stats.Average, comp.WcaId, state.Competitors);
+            comp.Stats.BestPossibleRank = CalculateProjectedBPARank(comp.Stats.BestPossibleAverage, comp.WcaId, state.Competitors);
+            comp.Stats.WorstPossibleRank = CalculateProjectedWPARank(comp.Stats.WorstPossibleAverage, comp.WcaId, state.Competitors);
+        }
 
+        // Pass 3: needed-for targets — requires all CurrentRanks to be finalised first
+        foreach (var comp in state.Competitors)
+        {
             comp.Stats.NeededForFirst = CalculateNeededForRank(comp, state.Competitors, 1);
             comp.Stats.NeededForSecond = CalculateNeededForRank(comp, state.Competitors, 2);
             comp.Stats.NeededForThird = CalculateNeededForRank(comp, state.Competitors, 3);

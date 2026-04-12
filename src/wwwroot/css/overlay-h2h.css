@@ -1,6 +1,8 @@
 ﻿:root {
     --color-bpa: #27ae60;
     --color-wpa: #c0392b;
+    --color-best: #da291c;
+    --color-worst: #046a38;
 }
 
 #container {
@@ -94,7 +96,7 @@
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background-color: #2ecc71;
+        background-color: var(--color-worst);
     }
 
     .solve-box.worst-time::before {
@@ -106,7 +108,7 @@
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background-color: #e74c3c;
+        background-color: var(--color-best);
     }
 
 /* ---- Stats area ---- */

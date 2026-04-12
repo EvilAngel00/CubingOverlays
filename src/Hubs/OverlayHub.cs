@@ -25,8 +25,6 @@ public class OverlayHub : Hub
 
     public H2hState GetState() => _state;
 
-    public string Test() => "test";
-
     public async Task<H2hState> UpdateState(H2hState updatedState)
     {
         _state.LeftCompetitorWcaId = updatedState.LeftCompetitorWcaId;
