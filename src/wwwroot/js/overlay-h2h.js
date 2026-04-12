@@ -45,15 +45,15 @@ function applyPlayerColors() {
 
     const { leftPlayerColor, rightPlayerColor } = settings.headToHead;
 
-    const leftName = document.querySelector("#left .name");
-    const rightName = document.querySelector("#right .name");
+    const leftEl = document.getElementById("left");
+    const rightEl = document.getElementById("right");
 
-    if (leftName && leftPlayerColor) {
-        leftName.style.color = leftPlayerColor;
+    if (leftEl && leftPlayerColor) {
+        leftEl.style.setProperty("--player-color", leftPlayerColor);
     }
 
-    if (rightName && rightPlayerColor) {
-        rightName.style.color = rightPlayerColor;
+    if (rightEl && rightPlayerColor) {
+        rightEl.style.setProperty("--player-color", rightPlayerColor);
     }
 
     console.log(`Applied H2H Settings: Left=${leftPlayerColor}, Right=${rightPlayerColor}`);
@@ -69,7 +69,7 @@ function renderSide(side, competitorId, state) {
     renderCompetitorHeader(root, competitor);
     renderSolveBoxes(side, root, competitor);
     renderStatsAndProjections(root, competitor.stats);
-    renderNeededFor(root, competitor.stats);
+    renderNeededFor(root, competitor);
     renderPersonalBests(side, competitor.stats);
 }
 
@@ -93,13 +93,50 @@ function renderSolveBoxes(side, root, competitor) {
     const timesContainer = document.getElementById(`times-${side}`);
     timesContainer.innerHTML = "";
 
+    const validSolves = competitor.solves
+        .filter(s => s && s.time !== undefined)
+        .map(s => ({
+            solveNumber: s.solveNumber,
+            time: s.time,
+            isDNF: s.penalty === "dnf" || s.time === -1
+        }));
+
+    let bestTime = Infinity;
+    let worstTime = -Infinity;
+    let bestSolveNumber = -1;
+    let worstSolveNumber = -1;
+
+    if (validSolves.length >= 2) {
+        validSolves.forEach(s => {
+            const currentTime = s.isDNF ? 999999 : s.time;
+            if (!s.isDNF && s.time < bestTime) {
+                bestTime = s.time;
+                bestSolveNumber = s.solveNumber;
+            }
+            if (currentTime > worstTime) {
+                worstTime = currentTime;
+                worstSolveNumber = s.solveNumber;
+            }
+        });
+    }
+
     for (let i = 1; i <= 5; i++) {
         const solveData = competitor.solves.find(s => s && s.solveNumber === i);
         const displayTime = solveData ? formatSolve(solveData) : "—";
 
         const box = document.createElement("div");
         box.className = "solve-box";
-        if (!solveData) box.setAttribute("data-empty", "true");
+
+        if (!solveData) {
+            box.setAttribute("data-empty", "true");
+        } else {
+            if (solveData.solveNumber === bestSolveNumber && bestTime !== Infinity) {
+                box.classList.add("best-time");
+            }
+            if (solveData.solveNumber === worstSolveNumber && worstTime !== -Infinity) {
+                box.classList.add("worst-time");
+            }
+        }
 
         box.textContent = displayTime;
         timesContainer.appendChild(box);
@@ -107,87 +144,46 @@ function renderSolveBoxes(side, root, competitor) {
 }
 
 function renderStatsAndProjections(root, stats) {
-    const mainAvgBox = root.querySelector(".main-avg");
-    const projGroup = root.querySelector(".projections-group");
-
-    // Reset visibility
-    [mainAvgBox, projGroup].forEach(el => {
-        el.classList.remove("visible-stat");
-        el.classList.add("hidden-stat");
-    });
+    root.querySelector(".main-avg .avg-value").textContent = "";
+    root.querySelector(".main-avg .rank-box").textContent = "";
+    root.querySelector(".bpa .avg-value").textContent = "";
+    root.querySelector(".bpa .rank-box").textContent = "";
+    root.querySelector(".wpa .avg-value").textContent = "";
+    root.querySelector(".wpa .rank-box").textContent = "";
 
     if (stats.average !== null) {
-        // Final average is available
-        mainAvgBox.classList.replace("hidden-stat", "visible-stat");
         root.querySelector(".main-avg .avg-value").textContent = stats.average === -1 ? "DNF" : stats.average.toFixed(2);
         root.querySelector(".main-avg .rank-box").textContent = getOrdinal(stats.currentRank);
-    }
-    else if (stats.bestPossibleAverage !== null) {
-        // Show projections instead
-        projGroup.classList.replace("hidden-stat", "visible-stat");
-
+    } else if (stats.bestPossibleAverage !== null) {
         root.querySelector(".bpa .avg-value").textContent = stats.bestPossibleAverage === -1 ? "DNF" : stats.bestPossibleAverage.toFixed(2);
         root.querySelector(".bpa .rank-box").textContent = getOrdinal(stats.bestPossibleRank);
-
         root.querySelector(".wpa .avg-value").textContent = stats.worstPossibleAverage === -1 ? "DNF" : stats.worstPossibleAverage.toFixed(2);
         root.querySelector(".wpa .rank-box").textContent = getOrdinal(stats.worstPossibleRank);
     }
 }
 
-function renderNeededFor(root, stats) {
-    const container = root.querySelector(".avg-container.needed");
-    const label = container.querySelector(".avg-label");
-    const valueBox = container.querySelector(".avg-value");
-    const valueWrapper = container.querySelector(".avg-value-box");
+function renderNeededFor(root, competitor) {
+    const containers = root.querySelectorAll(".avg-container.needed");
+    const stats = competitor.stats;
 
-    let val = stats.neededForFirst;
-    let labelText = "For 1st";
-    let maxPossibleRanking = 1;
+    const neededValues = [
+        { rank: 1, value: stats.neededForFirst },
+        { rank: 2, value: stats.neededForSecond },
+        { rank: 3, value: stats.neededForThird }
+    ];
 
-    if (!val && stats.neededForSecond) {
-        val = stats.neededForSecond;
-        labelText = "For 2nd";
-        maxPossibleRanking = 2;
-    }
+    containers.forEach(container => {
+        const rankAttr = parseInt(container.getAttribute("data-rank"));
+        const needed = neededValues.find(n => n.rank === rankAttr);
+        const valueEl = container.querySelector(".avg-value");
 
-    if (!val && stats.neededForThird) {
-        val = stats.neededForThird;
-        labelText = "For 3rd";
-        maxPossibleRanking = 3;
-    }
+        if (!needed || !needed.value || competitor.solves.length !== 4) {
+            valueEl.textContent = competitor.solves.length !== 4 ? "" : "x";
+            return;
+        }
 
-    if (!val) {
-        container.classList.add("hidden-stat");
-        maxPossibleRanking = 4;
-        return;
-    }
-
-    container.classList.remove("hidden-stat");
-    label.textContent = labelText;
-    valueBox.textContent = val === -1 ? "Any" : val.toFixed(2);
-
-    let color = "";
-    let fontColor = "";
-    switch (maxPossibleRanking) {
-        case 1: 
-            fontColor = "white"; 
-            color = ""; // Default(Gold)
-            break;
-        case 2: 
-            fontColor = "white"; 
-            color = "#c0c0c0"; // Silver
-            break;
-        case 3: 
-            fontColor = "white"; 
-            color = "#cd7f32"; // Bronze
-            break;
-        default: 
-            color = "";
-    }
-
-    label.style.backgroundColor = color;
-    label.style.color = fontColor;
-    valueWrapper.style.borderColor = color;
+        valueEl.textContent = needed.value === -1 ? "Any" : needed.value.toFixed(2);
+    });
 }
 
 function renderPersonalBests(side, stats) {

@@ -4,8 +4,7 @@ public class Settings
 {
     public EventRankingSettings EventRanking { get; set; } = new();
     public HeadToHeadSettings HeadToHead { get; set; } = new();
-
-    public EventDisplaySettings EventDisplay { get; set; } = new(); // New Category
+    public EventDisplaySettings EventDisplay { get; set; } = new();
 }
 
 public class EventRankingSettings
@@ -16,13 +15,13 @@ public class EventRankingSettings
 
 public class HeadToHeadSettings
 {
-    public string LeftPlayerColor { get; set; } = "#FFFFFF"; // White
-    public string RightPlayerColor { get; set; } = "#FFFFFF"; // White
+    public string LeftPlayerColor { get; set; } = "#000000"; // Black
+    public string RightPlayerColor { get; set; } = "#000000"; // Black
 }
 
 public class EventDisplaySettings
 {
-    public string PrimaryColor { get; set; } = "#FFFFFF"; // White
-    public string SecondaryColor { get; set; } = "#FFFFFF"; // White
-    public string TertiaryColor { get; set; } = "#FFFFFF"; // White
+    public string PrimaryColor { get; set; } = "#000000"; // Black
+    public string SecondaryColor { get; set; } = "#000000"; // Black
+    public string TertiaryColor { get; set; } = "#000000"; // Black
 }
