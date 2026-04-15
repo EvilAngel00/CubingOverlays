@@ -61,6 +61,19 @@ public class OverlayHub : Hub
         return _state;
     }
 
+    public async Task<H2hState> UpdateCompetitor(Competitor competitor)
+    {
+        var existing = _state.Competitors.FirstOrDefault(c => c.WcaId == competitor.WcaId);
+        if (existing != null)
+        {
+            existing.Name = competitor.Name;
+            existing.Country = competitor.Country;
+        }
+
+        await Clients.Others.SendAsync("StateUpdated", _state);
+        return _state;
+    }
+
     public async Task<H2hState> DeleteCompetitor(string wcaId)
     {
         var competitor = _state.Competitors.FirstOrDefault(c => c.WcaId == wcaId);

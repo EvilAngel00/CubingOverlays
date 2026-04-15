@@ -233,17 +233,3 @@
         saveBtn.disabled = isEditMode ? !fieldsFilled : (!fieldsFilled || isDuplicate);
     }
 };
-
-function openCompetitorModal() {
-    document.getElementById("modal_wcaid").value = "";
-    document.getElementById("modal_wcaid").disabled = false;
-    document.getElementById("id_help_text").style.opacity = "0";
-    document.getElementById("modal_name").value = "";
-    document.getElementById("modal_country").value = "";
-    document.getElementById("modal_pb_single").value = "";
-    document.getElementById("modal_pb_average").value = "";
-
-    CompetitorManager.validateForm();
-
-    document.getElementById("competitor_modal").showModal();
-}

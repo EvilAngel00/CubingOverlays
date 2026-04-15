@@ -40,21 +40,34 @@ document.querySelectorAll('input[data-side]').forEach(input => {
             if (nextTarget) {
                 nextTarget.focus();
                 nextTarget.select();
+            } else {
+                startSide = null;
             }
         }
     });
 });
 
 document.getElementById("submitTimesBtn")
-    .addEventListener("click", () => submit());
+    .addEventListener("click", async () => {
+        const btn = document.getElementById("submitTimesBtn");
+        btn.disabled = true;
+        const spinner = document.createElement("span");
+        spinner.className = "loading loading-spinner loading-sm";
+        btn.prepend(spinner);
+        await submit();
+        spinner.remove();
+        btn.disabled = false;
+    });
 
 leftSelect.addEventListener("change", async () => {
+    state.leftCompetitorWcaId = leftSelect.value;
     selectCompetitor("left", leftSelect.value);
     await submit();
 });
 
 rightSelect.addEventListener("change", async () => {
-    selectCompetitor("right", rightSelect.value)
+    state.rightCompetitorWcaId = rightSelect.value;
+    selectCompetitor("right", rightSelect.value);
     await submit();
 });
 
@@ -92,7 +105,7 @@ function renderCompetitors() {
     console.log("Render competitors");
 
     [leftSelect, rightSelect].forEach((select) => {
-        select.innerHTML = "";
+        select.innerHTML = '<option value="">-- Select Competitor --</option>';
         state.competitors.forEach(c => {
             const opt = document.createElement("option");
             opt.value = c.wcaId;
@@ -116,15 +129,16 @@ function renderCompetitors() {
 }
 
 async function saveCompetitor() {
-    const wcaId = document.getElementById("modal_wcaid").value;
+    const wcaIdInput = document.getElementById("modal_wcaid");
+    const isEditMode = wcaIdInput.disabled;
 
     const newComp = {
-        wcaId: wcaId,
+        wcaId: wcaIdInput.value,
         name: document.getElementById("modal_name").value,
         country: document.getElementById("modal_country").value
     };
 
-    state = await hub.invoke("AddCompetitor", newComp);
+    state = await hub.invoke(isEditMode ? "UpdateCompetitor" : "AddCompetitor", newComp);
     CompetitorManager.renderList(state.competitors);
     renderCompetitors();
     document.getElementById("competitor_modal").close();
@@ -139,9 +153,6 @@ function selectCompetitor(side, competitorId) {
     const inputs = document.querySelectorAll(
         `input[data-side="${side}"]`
     );
-
-    const propertyName = `${side}CompetitorWcaId`;
-    state[propertyName] = competitorId;
 
     inputs.forEach(i => i.value = "");
 
