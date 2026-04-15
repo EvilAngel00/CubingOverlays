@@ -39,17 +39,25 @@ public class OverlayHub : Hub
         return _state;
     }
 
-    public async Task<H2hState> AddCompetitor(Competitor competitor)
+    public async Task<H2hState> AddCompetitor(Competitor competitor, bool fetchFromWca = true)
     {
         var existing = _state.Competitors.FirstOrDefault(c => c.WcaId == competitor.WcaId);
         if (existing != null)
         {
-            existing.Name = competitor.Name;
-            existing.Country = competitor.Country;
+            if (fetchFromWca)
+            {
+                await FetchWcaInfo(existing);
+            }
+            else
+            {
+                existing.Name = competitor.Name;
+                existing.Country = competitor.Country;
+            }
         }
         else
         {
-            competitor = await FetchWcaInfo(competitor);
+            if (fetchFromWca)
+                competitor = await FetchWcaInfo(competitor);
             _state.Competitors.Add(competitor);
             if (_state.LeftGroupWcaIds.Count <= _state.RightGroupWcaIds.Count)
                 _state.LeftGroupWcaIds.Add(competitor.WcaId);
@@ -61,13 +69,15 @@ public class OverlayHub : Hub
         return _state;
     }
 
-    public async Task<H2hState> UpdateCompetitor(Competitor competitor)
+    public async Task<H2hState> UpdateCompetitor(Competitor competitor, bool fetchFromWca = false)
     {
         var existing = _state.Competitors.FirstOrDefault(c => c.WcaId == competitor.WcaId);
         if (existing != null)
         {
             existing.Name = competitor.Name;
             existing.Country = competitor.Country;
+            if (fetchFromWca)
+                await FetchWcaInfo(existing);
         }
 
         await Clients.Others.SendAsync("StateUpdated", _state);

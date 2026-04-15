@@ -32,6 +32,44 @@
         ["modal_wcaid", "modal_name", "modal_country"].forEach(id => {
             document.getElementById(id).addEventListener("input", () => this.validateForm());
         });
+
+        document.getElementById("modal_fetch_wca").addEventListener("change", () => {
+            this.toggleFetchWcaMode();
+            this.validateForm();
+        });
+    },
+
+    toggleFetchWcaMode() {
+        const fetchWca = document.getElementById("modal_fetch_wca").checked;
+        const nameInput = document.getElementById("modal_name");
+        const countryInput = document.getElementById("modal_country");
+        const wcaIdInput = document.getElementById("modal_wcaid");
+
+        const wcaIdRequired = document.getElementById("wcaid_required");
+        const nameRequired = document.getElementById("name_required");
+        const countryRequired = document.getElementById("country_required");
+
+        if (fetchWca) {
+            wcaIdInput.required = true;
+            nameInput.disabled = true;
+            nameInput.required = false;
+            countryInput.disabled = true;
+            countryInput.required = false;
+
+            wcaIdRequired.classList.remove("opacity-0");
+            nameRequired.classList.add("opacity-0");
+            countryRequired.classList.add("opacity-0");
+        } else {
+            wcaIdInput.required = false;
+            nameInput.disabled = false;
+            nameInput.required = true;
+            countryInput.disabled = false;
+            countryInput.required = true;
+
+            wcaIdRequired.classList.add("opacity-0");
+            nameRequired.classList.remove("opacity-0");
+            countryRequired.classList.remove("opacity-0");
+        }
     },
 
     renderList(competitors) {
@@ -174,8 +212,10 @@
         document.getElementById("id_help_text").style.opacity = "0";
         document.getElementById("modal_name").value = "";
         document.getElementById("modal_country").value = "";
+        document.getElementById("modal_fetch_wca").checked = true;
         document.getElementById("saveCompBtn").textContent = "Add Competitor";
 
+        this.toggleFetchWcaMode();
         this.validateForm();
 
         document.getElementById("competitor_modal").showModal();
@@ -189,8 +229,10 @@
         document.getElementById("modal_wcaid").disabled = true;
         document.getElementById("modal_name").value = c.name;
         document.getElementById("modal_country").value = c.country;
+        document.getElementById("modal_fetch_wca").checked = false;
         document.getElementById("saveCompBtn").textContent = "Update Competitor";
 
+        this.toggleFetchWcaMode();
         this.validateForm();
         document.getElementById("competitor_modal").showModal();
     },
@@ -200,19 +242,17 @@
         const wcaId = wcaIdInput.value.trim();
         const name = document.getElementById("modal_name").value.trim();
         const country = document.getElementById("modal_country").value.trim();
+        const fetchWca = document.getElementById("modal_fetch_wca").checked;
         const saveBtn = document.getElementById("saveCompBtn");
         const helpText = document.getElementById("id_help_text");
 
-        // Check if the input is disabled (this means we are in EDIT mode)
         const isEditMode = wcaIdInput.disabled;
 
-        // Only run duplicate logic if we are NOT in edit mode
         const isDuplicate = !isEditMode && state.competitors.some(c =>
             c.wcaId.toLowerCase() === wcaId.toLowerCase()
         );
 
         if (isDuplicate && wcaId !== "") {
-            // "New" entry that conflicts with an existing ID
             wcaIdInput.classList.add("input-warning");
             wcaIdInput.classList.remove("input-accent");
             saveBtn.classList.add("btn-warning");
@@ -220,7 +260,6 @@
             saveBtn.textContent = "Update Competitor";
             helpText.style.opacity = "1";
         } else {
-            // Normal "New" entry OR "Edit" mode
             wcaIdInput.classList.remove("input-warning");
             wcaIdInput.classList.add("input-accent");
             saveBtn.classList.add("btn-accent");
@@ -229,7 +268,13 @@
             helpText.style.opacity = "0";
         }
 
-        const fieldsFilled = wcaId && name && country;
+        let fieldsFilled;
+        if (fetchWca) {
+            fieldsFilled = wcaId !== "";
+        } else {
+            fieldsFilled = name !== "" && country !== "";
+        }
+
         saveBtn.disabled = isEditMode ? !fieldsFilled : (!fieldsFilled || isDuplicate);
     }
 };

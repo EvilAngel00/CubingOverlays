@@ -59,17 +59,17 @@ document.getElementById("submitTimesBtn")
         btn.disabled = false;
     });
 
-leftSelect.addEventListener("change", async () => {
-    state.leftCompetitorWcaId = leftSelect.value;
-    selectCompetitor("left", leftSelect.value);
-    await submit();
-});
+    leftSelect.addEventListener("change", async () => {
+        state.leftCompetitorWcaId = leftSelect.value;
+        selectCompetitor("left", leftSelect.value);
+        await submit();
+    });
 
-rightSelect.addEventListener("change", async () => {
-    state.rightCompetitorWcaId = rightSelect.value;
-    selectCompetitor("right", rightSelect.value);
-    await submit();
-});
+    rightSelect.addEventListener("change", async () => {
+        state.rightCompetitorWcaId = rightSelect.value;
+        selectCompetitor("right", rightSelect.value);
+        await submit();
+    });
 
 const hub = new SignalRManager();
 
@@ -131,6 +131,7 @@ function renderCompetitors() {
 async function saveCompetitor() {
     const wcaIdInput = document.getElementById("modal_wcaid");
     const isEditMode = wcaIdInput.disabled;
+    const fetchFromWca = document.getElementById("modal_fetch_wca").checked;
 
     const newComp = {
         wcaId: wcaIdInput.value,
@@ -138,7 +139,7 @@ async function saveCompetitor() {
         country: document.getElementById("modal_country").value
     };
 
-    state = await hub.invoke(isEditMode ? "UpdateCompetitor" : "AddCompetitor", newComp);
+    state = await hub.invoke(isEditMode ? "UpdateCompetitor" : "AddCompetitor", newComp, fetchFromWca);
     CompetitorManager.renderList(state.competitors);
     renderCompetitors();
     document.getElementById("competitor_modal").close();
