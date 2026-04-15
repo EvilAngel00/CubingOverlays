@@ -214,6 +214,8 @@
         document.getElementById("modal_country").value = "";
         document.getElementById("modal_fetch_wca").checked = true;
         document.getElementById("saveCompBtn").textContent = "Add Competitor";
+        document.getElementById("wca_fetch_error").style.opacity = "0";
+        document.getElementById("wca_fetch_error").textContent = "";
 
         this.toggleFetchWcaMode();
         this.validateForm();
@@ -231,6 +233,8 @@
         document.getElementById("modal_country").value = c.country;
         document.getElementById("modal_fetch_wca").checked = false;
         document.getElementById("saveCompBtn").textContent = "Update Competitor";
+        document.getElementById("wca_fetch_error").style.opacity = "0";
+        document.getElementById("wca_fetch_error").textContent = "";
 
         this.toggleFetchWcaMode();
         this.validateForm();

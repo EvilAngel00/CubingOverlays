@@ -132,6 +132,12 @@ async function saveCompetitor() {
     const wcaIdInput = document.getElementById("modal_wcaid");
     const isEditMode = wcaIdInput.disabled;
     const fetchFromWca = document.getElementById("modal_fetch_wca").checked;
+    const saveBtn = document.getElementById("saveCompBtn");
+    const errorDisplay = document.getElementById("wca_fetch_error");
+
+    // Clear previous error
+    errorDisplay.style.opacity = "0";
+    errorDisplay.textContent = "";
 
     const newComp = {
         wcaId: wcaIdInput.value,
@@ -139,10 +145,23 @@ async function saveCompetitor() {
         country: document.getElementById("modal_country").value
     };
 
-    state = await hub.invoke(isEditMode ? "UpdateCompetitor" : "AddCompetitor", newComp, fetchFromWca);
-    CompetitorManager.renderList(state.competitors);
-    renderCompetitors();
-    document.getElementById("competitor_modal").close();
+    // Disable button and show loading state
+    saveBtn.disabled = true;
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = fetchFromWca ? "Fetching from WCA..." : "Saving...";
+
+    try {
+        state = await hub.invoke(isEditMode ? "UpdateCompetitor" : "AddCompetitor", newComp, fetchFromWca);
+        CompetitorManager.renderList(state.competitors);
+        renderCompetitors();
+        document.getElementById("competitor_modal").close();
+    } catch (error) {
+        console.error("Error saving competitor:", error);
+        errorDisplay.textContent = error.message || "Failed to save competitor. Please try again.";
+        errorDisplay.style.opacity = "1";
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+    }
 }
 
 function selectCompetitor(side, competitorId) {
@@ -380,13 +399,26 @@ async function processBatchImport() {
 
         CompetitorManager.renderList(state.competitors);
         renderCompetitors();
+        
+        // Success - close modal
+        textarea.value = '';
+        document.getElementById('batch_modal').close();
     } catch (err) {
         console.error("Batch import failed", err);
+        
+        // Even if there's an error, we should have received StateUpdated
+        // so render the updated state with successful imports
+        CompetitorManager.renderList(state.competitors);
+        renderCompetitors();
+        
+        alert(`Batch Import Error:\n\n${err.message}`);
+        
+        // Close modal after error shown
+        textarea.value = '';
+        document.getElementById('batch_modal').close();
+    } finally {
+        // Cleanup
+        btn.disabled = false;
+        btn.textContent = originalText;
     }
-
-    // Cleanup
-    btn.disabled = false;
-    btn.textContent = originalText;
-    textarea.value = '';
-    document.getElementById('batch_modal').close();
 }

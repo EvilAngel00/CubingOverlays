@@ -242,12 +242,21 @@
                         </div>
                     </div>
 
-                    <div class="form-control">
-                        <label class="label cursor-pointer justify-start gap-3 py-2">
-                            <input type="checkbox" id="modal_fetch_wca" class="checkbox checkbox-accent checkbox-sm" checked />
-                            <span class="label-text font-semibold">Fetch from WCA</span>
+                    <div class="form-control bg-accent/10 rounded-lg p-4 border border-accent/20">
+                        <label class="label cursor-pointer justify-between py-0">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <span class="label-text font-bold text-base">Fetch from WCA</span>
+                                    <p class="text-xs opacity-70 mt-0.5">Auto-retrieve name, country, and PBs</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="modal_fetch_wca" class="toggle toggle-success toggle-lg" checked />
                         </label>
-                        <p class="text-xs opacity-60 mt-1 ml-1">Automatically retrieve name, country, and personal bests from WCA database</p>
                     </div>
 
                     <div class="form-control">
@@ -258,6 +267,11 @@
                     <div class="form-control mt-2">
                         <label class="label py-1"><span class="label-text">Country <span id="country_required" class="text-error opacity-0">*</span></span></label>
                         <input type="text" id="modal_country" class="input input-bordered w-full" placeholder="CH" disabled />
+                    </div>
+
+                    <div class="alert alert-error shadow-sm opacity-0 transition-opacity mt-3" id="wca_fetch_error">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span id="wca_fetch_error_text"></span>
                     </div>
                 </div>
 

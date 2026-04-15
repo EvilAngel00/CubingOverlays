@@ -46,7 +46,9 @@ public class OverlayHub : Hub
         {
             if (fetchFromWca)
             {
-                await FetchWcaInfo(existing);
+                var success = await FetchWcaInfo(existing);
+                if (!success)
+                    throw new HubException($"WCA ID '{existing.WcaId}' not found in the WCA database.");
             }
             else
             {
@@ -57,7 +59,11 @@ public class OverlayHub : Hub
         else
         {
             if (fetchFromWca)
-                competitor = await FetchWcaInfo(competitor);
+            {
+                var success = await FetchWcaInfo(competitor);
+                if (!success)
+                    throw new HubException($"WCA ID '{competitor.WcaId}' not found in the WCA database. Please check the ID or uncheck 'Fetch from WCA' to add manually.");
+            }
             _state.Competitors.Add(competitor);
             if (_state.LeftGroupWcaIds.Count <= _state.RightGroupWcaIds.Count)
                 _state.LeftGroupWcaIds.Add(competitor.WcaId);
@@ -77,7 +83,11 @@ public class OverlayHub : Hub
             existing.Name = competitor.Name;
             existing.Country = competitor.Country;
             if (fetchFromWca)
-                await FetchWcaInfo(existing);
+            {
+                var success = await FetchWcaInfo(existing);
+                if (!success)
+                    throw new HubException($"WCA ID '{existing.WcaId}' not found in the WCA database.");
+            }
         }
 
         await Clients.Others.SendAsync("StateUpdated", _state);
@@ -108,7 +118,7 @@ public class OverlayHub : Hub
         _state.RightGroupWcaIds = importedState.RightGroupWcaIds;
         _state.Competitors.Clear();
         foreach (var competitor in importedState.Competitors)
-            _state.Competitors.Add(await FetchWcaInfo(competitor));
+            _state.Competitors.Add(competitor);
 
         CompetitionService.UpdateCompetitorStats(_state);
 
@@ -118,12 +128,22 @@ public class OverlayHub : Hub
 
     public async Task<H2hState> BatchImportCompetitors(IEnumerable<string> wcaIds)
     {
+        var failedIds = new List<string>();
+        
         foreach (var id in wcaIds.Reverse())
         {
             var normalizedId = id.ToUpper();
             if (_state.Competitors.Any(c => c.WcaId == normalizedId)) continue;
 
-            var competitor = await FetchWcaInfo(new Competitor(normalizedId, "Fetching...", "--"));
+            var competitor = new Competitor(normalizedId, "Fetching...", "--");
+            var success = await FetchWcaInfo(competitor);
+            
+            if (!success)
+            {
+                failedIds.Add(normalizedId);
+                continue;
+            }
+            
             _state.Competitors.Add(competitor);
             if (_state.LeftGroupWcaIds.Count <= _state.RightGroupWcaIds.Count)
                 _state.LeftGroupWcaIds.Add(competitor.WcaId);
@@ -131,37 +151,50 @@ public class OverlayHub : Hub
                 _state.RightGroupWcaIds.Add(competitor.WcaId);
         }
 
-        await Clients.Others.SendAsync("StateUpdated", _state);
+        await Clients.All.SendAsync("StateUpdated", _state);
+        
+        if (failedIds.Any())
+            throw new HubException($"Failed to fetch {failedIds.Count} WCA ID(s): {string.Join(", ", failedIds)}. Successfully imported competitors have been added.");
+        
         return _state;
     }
 
-    private async Task<Competitor> FetchWcaInfo(Competitor competitor)
+    private async Task<bool> FetchWcaInfo(Competitor competitor)
     {
         try
         {
             var client = _httpClientFactory.CreateClient();
             var response = await client.GetAsync($"https://www.worldcubeassociation.org/api/v0/persons/{competitor.WcaId.ToUpper()}");
-            if (response.IsSuccessStatusCode)
+            
+            if (!response.IsSuccessStatusCode)
             {
-                var wcaData = await response.Content.ReadFromJsonAsync<WcaPersonResponse>();
-                if (wcaData?.Person != null)
-                {
-                    competitor.Name = wcaData.Person.Name;
-                    competitor.Country = wcaData.Person.CountryIso2;
-                    if (wcaData.PersonalRecords?.TryGetValue("333", out var records) == true)
-                    {
-                        competitor.Stats.PersonalBestSingle = records.Single?.Best / 100.0 ?? 0;
-                        competitor.Stats.PersonalBestAverage = records.Average?.Best / 100.0 ?? 0;
-                        Console.WriteLine($"Fetched {competitor.Name}: Single {competitor.Stats.PersonalBestSingle}s, Avg {competitor.Stats.PersonalBestAverage}s");
-                    }
-                }
+                Console.WriteLine($"WCA API Error: HTTP {response.StatusCode} for {competitor.WcaId}");
+                return false;
             }
+            
+            var wcaData = await response.Content.ReadFromJsonAsync<WcaPersonResponse>();
+            if (wcaData?.Person == null)
+            {
+                Console.WriteLine($"WCA API Error: No person data for {competitor.WcaId}");
+                return false;
+            }
+            
+            competitor.Name = wcaData.Person.Name;
+            competitor.Country = wcaData.Person.CountryIso2;
+            if (wcaData.PersonalRecords?.TryGetValue("333", out var records) == true)
+            {
+                competitor.Stats.PersonalBestSingle = records.Single?.Best / 100.0 ?? 0;
+                competitor.Stats.PersonalBestAverage = records.Average?.Best / 100.0 ?? 0;
+                Console.WriteLine($"Fetched {competitor.Name}: Single {competitor.Stats.PersonalBestSingle}s, Avg {competitor.Stats.PersonalBestAverage}s");
+            }
+            
+            return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"WCA API Error: {ex.Message}");
+            return false;
         }
-        return competitor;
     }
 
     // ── Rankings ──────────────────────────────────────────────────────────────
